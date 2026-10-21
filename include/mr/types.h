@@ -39,7 +39,7 @@ enum mr_result
 typedef int mr_result_t;
 
 // ----------------------------------------------------------------------
-// Common vector macros
+// Type definitions
 // ----------------------------------------------------------------------
 
 #define __vec_typename(base, len) v##len##base
@@ -47,11 +47,15 @@ typedef int mr_result_t;
 #define __vec_s_opname(name, base, len) v##len##base##_##name##s
 #define __vec_typedecl(base, len) typedef base __vec_typename(base, len)[len];
 
-// ----------------------------------------------------------------------
-// Type definitions
-// ----------------------------------------------------------------------
+#define __mat_typename(base, size) mat##size##base
+#define __mat_typedecl(base, size) typedef base __mat_typename(base, size)[size * size];
 
 #define __vec_typedef(X, base) \
+    X(base, 2);                \
+    X(base, 3);                \
+    X(base, 4);
+
+#define __mat_typedef(X, base) \
     X(base, 2);                \
     X(base, 3);                \
     X(base, 4);
@@ -70,5 +74,8 @@ __vec_typedef(__vec_typedecl, i32);
 __vec_typedef(__vec_typedecl, u32);
 __vec_typedef(__vec_typedecl, i64);
 __vec_typedef(__vec_typedecl, u64);
+
+__mat_typedef(__mat_typedecl, f32);
+__mat_typedef(__mat_typedecl, f64);
 
 #endif

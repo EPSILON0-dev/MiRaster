@@ -9,7 +9,7 @@
 // ----------------------------------------------------------------------
 
 #ifdef MR_MATH_IMPL_AUTOVECTORIZATION
-#include "mr/autovec_math_impl.h"  // IWYU pragma: keep
+#include "mr/vec_math_impl.h"  // IWYU pragma: keep
 __vec_typedef(__vec_float_type_define_impl, f32);
 __vec_typedef(__vec_float_type_define_impl, f64);
 __vec_typedef(__vec_int_type_define_impl, i8);
@@ -20,6 +20,12 @@ __vec_typedef(__vec_int_type_define_impl, i32);
 __vec_typedef(__vec_int_type_define_impl, u32);
 __vec_typedef(__vec_int_type_define_impl, i64);
 __vec_typedef(__vec_int_type_define_impl, u64);
+#endif
+
+#ifdef MR_MATH_IMPL_AUTOVECTORIZATION
+#include "mr/mat_math_impl.h"  // IWYU pragma: keep
+__mat_typedef(__mat_type_define_impl, f32);
+__mat_typedef(__mat_type_define_impl, f64);
 #endif
 
 // ----------------------------------------------------------------------

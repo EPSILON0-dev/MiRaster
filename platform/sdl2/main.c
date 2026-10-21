@@ -12,24 +12,22 @@
 // clang-format off
 v4f32 cubebase[] =
 {
-    { -1.0f, -1.0f, -1.0f, 0.0f }, {  1.0f, -1.0f, -1.0f, 0.0f },
-    { -1.0f,  1.0f, -1.0f, 0.0f }, {  1.0f,  1.0f, -1.0f, 0.0f },
-    { -1.0f, -1.0f,  1.0f, 0.0f }, {  1.0f, -1.0f,  1.0f, 0.0f },
-    { -1.0f,  1.0f,  1.0f, 0.0f }, {  1.0f,  1.0f,  1.0f, 0.0f },
+    { -1.0f, -1.0f, -1.0f, 1.0f }, {  1.0f, -1.0f, -1.0f, 1.0f },
+    { -1.0f,  1.0f, -1.0f, 1.0f }, {  1.0f,  1.0f, -1.0f, 1.0f },
+    { -1.0f, -1.0f,  1.0f, 1.0f }, {  1.0f, -1.0f,  1.0f, 1.0f },
+    { -1.0f,  1.0f,  1.0f, 1.0f }, {  1.0f,  1.0f,  1.0f, 1.0f },
 
-    { -1.0f, -1.0f, -1.0f, 0.0f }, { -1.0f,  1.0f, -1.0f, 0.0f },
-    {  1.0f, -1.0f, -1.0f, 0.0f }, {  1.0f,  1.0f, -1.0f, 0.0f },
-    { -1.0f, -1.0f,  1.0f, 0.0f }, { -1.0f,  1.0f,  1.0f, 0.0f },
-    {  1.0f, -1.0f,  1.0f, 0.0f }, {  1.0f,  1.0f,  1.0f, 0.0f },
+    { -1.0f, -1.0f, -1.0f, 1.0f }, { -1.0f,  1.0f, -1.0f, 1.0f },
+    {  1.0f, -1.0f, -1.0f, 1.0f }, {  1.0f,  1.0f, -1.0f, 1.0f },
+    { -1.0f, -1.0f,  1.0f, 1.0f }, { -1.0f,  1.0f,  1.0f, 1.0f },
+    {  1.0f, -1.0f,  1.0f, 1.0f }, {  1.0f,  1.0f,  1.0f, 1.0f },
 
-    { -1.0f, -1.0f, -1.0f, 0.0f }, { -1.0f, -1.0f,  1.0f, 0.0f },
-    {  1.0f, -1.0f, -1.0f, 0.0f }, {  1.0f, -1.0f,  1.0f, 0.0f },
-    { -1.0f,  1.0f, -1.0f, 0.0f }, { -1.0f,  1.0f,  1.0f, 0.0f },
-    {  1.0f,  1.0f, -1.0f, 0.0f }, {  1.0f,  1.0f,  1.0f, 0.0f },
+    { -1.0f, -1.0f, -1.0f, 1.0f }, { -1.0f, -1.0f,  1.0f, 1.0f },
+    {  1.0f, -1.0f, -1.0f, 1.0f }, {  1.0f, -1.0f,  1.0f, 1.0f },
+    { -1.0f,  1.0f, -1.0f, 1.0f }, { -1.0f,  1.0f,  1.0f, 1.0f },
+    {  1.0f,  1.0f, -1.0f, 1.0f }, {  1.0f,  1.0f,  1.0f, 1.0f },
 };
 // clang-format on
-
-v4f32 cubexformbuff[sizeof(cubebase) / sizeof(*cubebase)];
 
 void white_line_shader(v4f32 color, v2u16 screenpos, struct mr_line_draw_cmd* cmd)
 {
@@ -40,52 +38,66 @@ void white_line_shader(v4f32 color, v2u16 screenpos, struct mr_line_draw_cmd* cm
 
 static void render_image(struct fb_desc* fb, u32 frame)
 {
-    (void)frame;
-
     const v4u8 clear_color = {0, 0, 0, 255};
     mr_clear(fb, clear_color);
 
+    // Note: Since we store matrices column by column their deifinitions have to be transposed
+
+    mat4f32 scale_mat = {
+        0.9f, 0.0f, 0.0f, 0.0f,  //
+        0.0f, 0.9f, 0.0f, 0.0f,  //
+        0.0f, 0.0f, 0.9f, 0.0f,  //
+        0.0f, 0.0f, 0.0f, 1.0f   //
+    };
+
+    // clang-format off
     const f32 phi = ((f32)frame) / 100.0f;
+    const mat4f32 rotate_mat = {
+         cosf(phi), 0.0f, sinf(phi), 0.0f,
+              0.0f, 1.0f,      0.0f, 0.0f,
+        -sinf(phi), 0.0f, cosf(phi), 0.0f,
+              0.0f, 0.0f,      0.0f, 1.0f
+    };
+    // clang-format on
 
+    const mat4f32 translate_mat = {
+        1.0f, 0.0f, 0.0f, 0.0f,  //
+        0.0f, 1.0f, 0.0f, 0.0f,  //
+        0.0f, 0.0f, 1.0f, 0.0f,  //
+        0.0f, 0.0f, 1.5f, 1.0f   //
+    };
+
+    // clang-format off
     const f32 aspect = (f32)MR_SDL2_DEFAULT_WIDTH / (f32)MR_SDL2_DEFAULT_HEIGHT;
-    const v4f32 aspectvec = {1.0f, 1.0f / aspect, 1.0f, 1.0f};
+    const mat4f32 perspective_mat = {
+        1.0f / aspect, 0.0f, 0.0f, 0.0f,
+        0.0f,          1.0f, 0.0f, 0.0f,
+        0.0f,          0.0f, 0.0f, 1.0f,
+        0.0f,          0.0f, 0.0f, 1.0f
+    };
+    // clang-format on
 
-    for (size_t i = 0; i < sizeof(cubebase) / sizeof(*cubebase); i++)
-    {
-        v4f32 offset = {0.0f, 0.0f, 3.0f, 0.0f};
+    mat4f32 transform_mat;
+    mat4f32_mulmat(transform_mat, scale_mat, rotate_mat);
+    mat4f32_mulmat(transform_mat, translate_mat, transform_mat);
+    mat4f32_mulmat(transform_mat, perspective_mat, transform_mat);
 
-        // Copy the original cube
-        v4f32_cpy(cubexformbuff[i], cubebase[i]);
-
-        // Scale by a scale factor
-        v4f32_muls(cubexformbuff[i], cubexformbuff[i], 0.9f);
-
-        // Apply rotation (no matrix yet :c)
-        const f32 x = cubexformbuff[i][0];
-        const f32 z = cubexformbuff[i][2];
-        cubexformbuff[i][0] = x * cosf(phi) + z * sinf(phi);
-        cubexformbuff[i][2] = -x * sinf(phi) + z * cosf(phi);
-
-        // Offset the cube from the camera
-        v4f32_add(cubexformbuff[i], cubexformbuff[i], offset);
-
-        // Apply the perspective
-        v4f32_divs(cubexformbuff[i], cubexformbuff[i], cubexformbuff[i][2]);
-
-        // Scale by aspect ratio
-        v4f32_div(cubexformbuff[i], cubexformbuff[i], aspectvec);
-    }
-
+    v4f32 line[2];
     struct mr_line_draw_cmd cmd = {
         .fb = fb,
-        .verts = NULL,
+        .verts = line,
         .shader = white_line_shader,
         .data = NULL,
     };
 
-    for (size_t i = 0; i < sizeof(cubexformbuff) / sizeof(*cubexformbuff); i += 2)
+    for (size_t i = 0; i < sizeof(cubebase) / sizeof(*cubebase); i += 2)
     {
-        cmd.verts = &cubexformbuff[i];
+        for (size_t j = 0; j < 2; j++)
+        {
+            mat4f32_mulvec(line[j], transform_mat, cubebase[i + j]);
+            v4f32_divs(line[j], line[j], line[j][3]);
+        }
+
         mr_draw_line(&cmd);
     }
 }

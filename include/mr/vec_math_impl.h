@@ -1,5 +1,5 @@
-#ifndef MR_AUTOVEC_MATH_IMPL_H
-#define MR_AUTOVEC_MATH_IMPL_H
+#ifndef MR_VEC_MATH_IMPL_H
+#define MR_VEC_MATH_IMPL_H
 
 #include "mr/config.h"
 
@@ -11,7 +11,7 @@
     MR_FORCE_STATIC_INLINE void __vec_v_opname(name, base, len)(__vec_typename(base, len) res, \
         const __vec_typename(base, len) a, const __vec_typename(base, len) b)                  \
     {                                                                                          \
-        for (uint8_t i = 0; i < len; i++)                                                      \
+        for (u8 i = 0; i < len; i++)                                                           \
         {                                                                                      \
             res[i] = a[i] operator b[i];                                                       \
         }                                                                                      \
@@ -21,7 +21,7 @@
     MR_FORCE_STATIC_INLINE void __vec_s_opname(name, base, len)(                        \
         __vec_typename(base, len) res, const __vec_typename(base, len) a, const base b) \
     {                                                                                   \
-        for (uint8_t i = 0; i < len; i++)                                               \
+        for (u8 i = 0; i < len; i++)                                                    \
         {                                                                               \
             res[i] = a[i] operator b;                                                   \
         }                                                                               \
@@ -31,7 +31,7 @@
     MR_FORCE_STATIC_INLINE void v##len##base##_clamp(                      \
         __vec_typename(base, len) val, const base min, const base max)     \
     {                                                                      \
-        for (uint8_t i = 0; i < len; i++)                                  \
+        for (u8 i = 0; i < len; i++)                                       \
         {                                                                  \
             val[i] = (val[i] < min) ? min : (val[i] > max) ? max : val[i]; \
         }                                                                  \
@@ -42,7 +42,7 @@
         const __vec_typename(base, len) a, const __vec_typename(base, len) b) \
     {                                                                         \
         base res = 0;                                                         \
-        for (uint8_t i = 0; i < len; i++)                                     \
+        for (u8 i = 0; i < len; i++)                                          \
         {                                                                     \
             res += a[i] * b[i];                                               \
         }                                                                     \
@@ -53,7 +53,7 @@
     MR_FORCE_STATIC_INLINE void v##len##base##_lerp(__vec_typename(base, len) res,          \
         const __vec_typename(base, len) a, const __vec_typename(base, len) b, const base f) \
     {                                                                                       \
-        for (uint8_t i = 0; i < len; i++)                                                   \
+        for (u8 i = 0; i < len; i++)                                                        \
         {                                                                                   \
             res[i] = (1 - f) * a[i] + f * b[i];                                             \
         }                                                                                   \
@@ -63,7 +63,7 @@
     MR_FORCE_STATIC_INLINE void v##len##base##_cpy(                         \
         __vec_typename(base, len) dst, const __vec_typename(base, len) src) \
     {                                                                       \
-        for (uint8_t i = 0; i < len; i++)                                   \
+        for (u8 i = 0; i < len; i++)                                        \
         {                                                                   \
             dst[i] = src[i];                                                \
         }                                                                   \
