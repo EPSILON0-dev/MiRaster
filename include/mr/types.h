@@ -34,6 +34,7 @@ enum mr_result
     MR_INVALID_FORMAT,
     MR_MODIFIED,
     MR_OUT_OF_RANGE,
+    MR_NOMEM,
     MR_NOWAIT,
 };
 

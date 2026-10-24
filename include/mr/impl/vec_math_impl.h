@@ -1,6 +1,8 @@
 #ifndef MR_VEC_MATH_IMPL_H
 #define MR_VEC_MATH_IMPL_H
 
+#include <math.h> // IWYU pragma: keep
+
 #include "mr/config.h"
 
 // ----------------------------------------------------------------------
@@ -164,5 +166,21 @@
 #define __vec_uint_type_define_impl(base, len) \
     __vec_common_type_define_impl(base, len);  \
     __vec_mod_op_impl(base, len);
+
+// ----------------------------------------------------------------------
+// Type specific operations
+// ----------------------------------------------------------------------
+
+#define __vec_f32_dist_impl(len)                                                          \
+    MR_FORCE_STATIC_INLINE f32 v##len##f32_dist(const v##len##f32 a, const v##len##f32 b) \
+    {                                                                                     \
+        f32 sum = 0.0f;                                                                   \
+        for (u8 i = 0; i < len; i++)                                                      \
+        {                                                                                 \
+            const f32 diff = (a[i] - b[i]);                                               \
+            sum += diff * diff;                                                           \
+        }                                                                                 \
+        return sqrtf(sum);                                                                \
+    }
 
 #endif

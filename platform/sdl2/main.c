@@ -32,15 +32,21 @@ v4f32 cubebase[] =
 
 void white_line_shader(v4f32 color, v2u16 screenpos, struct mr_line_draw_cmd* cmd)
 {
-    (void)cmd;
-    (void)screenpos;
-    for (u8 i = 0; i < 4; i++) color[i] = 1.0f;
+    v4f32 pos;
+    f32 factor;
+    mr_fbcoord_to_line_pos(pos, &factor, cmd->fb, screenpos, cmd->verts);
+
+    const f32 brightness = f32_clamp(pos[3], 0.0f, 1.0f);
+    color[0] = factor * brightness;
+    color[1] = brightness / 2.0f;
+    color[2] = (1.0f - factor) * brightness;
+    color[3] = 1.0f;
 }
 
 static void render_image(struct fb_desc* fb, u32 frame)
 {
     const v4u8 clear_color = {0, 0, 0, 255};
-    mr_clear(fb, clear_color);
+    mr_clear_color(fb, clear_color);
 
     // Note: Since we store matrices column by column their deifinitions have to be transposed
 
@@ -65,7 +71,7 @@ static void render_image(struct fb_desc* fb, u32 frame)
         1.0f, 0.0f, 0.0f, 0.0f,  //
         0.0f, 1.0f, 0.0f, 0.0f,  //
         0.0f, 0.0f, 1.0f, 0.0f,  //
-        0.0f, 0.0f, -0.3f, 1.0f  //
+        0.0f, 0.0f, 2.5f, 1.0f   //
     };
 
     // clang-format off
@@ -134,6 +140,8 @@ int main(void)
         platform_get_last_frame_time_us(&frametime);
         printf("Frame time: %6.2fms       \r", frametime / 1000.0f);
         fflush(stdout);
+
+        usleep(10000);
     }
 
     free(fb.pixels);

@@ -1,7 +1,9 @@
 #include <string.h>
 
+#include "mr/fb.h"
 #include "mr/math.h"
 #include "mr/render.h"
+#include "mr/types.h"
 
 // Bresenham's Line Algorithm
 // https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
@@ -15,9 +17,14 @@ MR_FORCE_STATIC_INLINE void draw_shaded_pixel(struct mr_line_draw_cmd* cmd, v2u1
     mr_fb_draw_pixel(cmd->fb, pos, ucolor);
 }
 
-MR_FORCE_STATIC_INLINE void draw_line_low(
-    struct mr_line_draw_cmd* cmd, u16 x0, u16 y0, u16 x1, u16 y1)
+void __mr_internal_draw_line_low(
+    v4u16 verts, __mr_internal_line_pixel_func func, __mr_internal_line_pixel_data* data)
 {
+    const u16 x0 = verts[0];
+    const u16 y0 = verts[1];
+    const u16 x1 = verts[2];
+    const u16 y1 = verts[3];
+
     i32 dx = x1 - x0;
     i32 dy = y1 - y0;
     i32 yi = 1;
@@ -33,7 +40,7 @@ MR_FORCE_STATIC_INLINE void draw_line_low(
     for (i32 x = x0; x <= x1; x++)
     {
         v2u16 pos = {x, y};
-        draw_shaded_pixel(cmd, pos);
+        func(pos, data);
 
         if (d > 0)
         {
@@ -47,9 +54,14 @@ MR_FORCE_STATIC_INLINE void draw_line_low(
     }
 }
 
-MR_FORCE_STATIC_INLINE void draw_line_high(
-    struct mr_line_draw_cmd* cmd, u16 x0, u16 y0, u16 x1, u16 y1)
+void __mr_internal_draw_line_high(
+    v4u16 verts, __mr_internal_line_pixel_func func, __mr_internal_line_pixel_data* data)
 {
+    const u16 x0 = verts[0];
+    const u16 y0 = verts[1];
+    const u16 x1 = verts[2];
+    const u16 y1 = verts[3];
+
     i32 dx = x1 - x0;
     i32 dy = y1 - y0;
     i32 xi = 1;
@@ -65,7 +77,7 @@ MR_FORCE_STATIC_INLINE void draw_line_high(
     for (i32 y = y0; y <= y1; y++)
     {
         v2u16 pos = {x, y};
-        draw_shaded_pixel(cmd, pos);
+        func(pos, data);
 
         if (d > 0)
         {
@@ -79,24 +91,31 @@ MR_FORCE_STATIC_INLINE void draw_line_high(
     }
 }
 
-MR_FORCE_STATIC_INLINE void mr_draw_line_resolved(
-    struct mr_line_draw_cmd* cmd, v2u16 start, v2u16 end)
+MR_FORCE_STATIC_INLINE void swap_screencoord_verts(v4u16 verts)
 {
-    i32 dx = i32_abs((i32)end[0] - (i32)start[0]);
-    i32 dy = i32_abs((i32)end[1] - (i32)start[1]);
+    const u16 tx = verts[0];
+    verts[0] = verts[2];
+    verts[2] = tx;
+
+    const u16 ty = verts[1];
+    verts[1] = verts[3];
+    verts[3] = ty;
+}
+
+void __mr_internal_draw_line_resolved(
+    v4u16 verts, __mr_internal_line_pixel_func func, __mr_internal_line_pixel_data* data)
+{
+    i32 dx = i32_abs((i32)verts[2 + 0] - (i32)verts[0]);
+    i32 dy = i32_abs((i32)verts[2 + 1] - (i32)verts[1]);
     if (dy < dx)
     {
-        if (start[0] > end[0])
-            draw_line_low(cmd, end[0], end[1], start[0], start[1]);
-        else
-            draw_line_low(cmd, start[0], start[1], end[0], end[1]);
+        if (verts[0] > verts[2 + 0]) swap_screencoord_verts(verts);
+        __mr_internal_draw_line_low(verts, func, data);
     }
     else
     {
-        if (start[1] > end[1])
-            draw_line_high(cmd, end[0], end[1], start[0], start[1]);
-        else
-            draw_line_high(cmd, start[0], start[1], end[0], end[1]);
+        if (verts[1] > verts[2 + 1]) swap_screencoord_verts(verts);
+        __mr_internal_draw_line_high(verts, func, data);
     }
 }
 
@@ -112,20 +131,21 @@ MR_FORCE_STATIC_INLINE mr_result_t mr_clamp_line_to_front(v4f32 p0, v4f32 p1)
         return MR_OUT_OF_RANGE;
     }
 
-    v2f32 a, b;
-    v2f32_sub(a, p1, p0);
-    v2f32_divs(a, a, p1[2] - p0[2]);
-    v2f32_sub(b, a, p0);
-    v2f32_divs(b, b, p0[2]);
+    const f32 t = -p0[2] / (p1[2] - p0[2]);
+
+    v2f32 d, intersection;
+    v2f32_sub(d, p1, p0);
+    v2f32_muls(d, d, t);
+    v2f32_add(intersection, p0, d);
 
     if (p0[2] < 0)
     {
-        v2f32_cpy(p0, b);
+        v2f32_cpy(p0, intersection);
         p0[2] = 0;
     }
     else
     {
-        v2f32_cpy(p1, b);
+        v2f32_cpy(p1, intersection);
         p1[2] = 0;
     }
 
@@ -168,7 +188,8 @@ MR_FORCE_STATIC_INLINE mr_result_t mr_clamp_line_to_screen(v2f32 p0, v2f32 p1)
     return MR_MODIFIED;
 }
 
-mr_result_t mr_draw_line(struct mr_line_draw_cmd* cmd)
+mr_result_t __mr_internal_draw_line(struct mr_line_draw_cmd* cmd,
+    __mr_internal_line_pixel_func func, __mr_internal_line_pixel_data* data)
 {
     v4f32 verts[2];
     memcpy(verts, cmd->verts, sizeof(verts));
@@ -183,24 +204,20 @@ mr_result_t mr_draw_line(struct mr_line_draw_cmd* cmd)
         return MR_OUT_OF_RANGE;
     }
 
-    v2u16 iverts[2];
-    mr_fragcoord_to_fbcoord(cmd->fb, iverts[0], verts[0]);
-    mr_fragcoord_to_fbcoord(cmd->fb, iverts[1], verts[1]);
-    mr_draw_line_resolved(cmd, iverts[0], iverts[1]);
+    v4u16 iverts;
+    mr_fragcoord_to_fbcoord(cmd->fb, &iverts[0], verts[0]);
+    mr_fragcoord_to_fbcoord(cmd->fb, &iverts[2], verts[1]);
+    __mr_internal_draw_line_resolved(iverts, func, data);
     return MR_OK;
 }
 
-mr_result_t mr_draw_line_screenbound(struct mr_line_draw_cmd* cmd)
+static void line_draw_pixel_func(v2u16 pos, __mr_internal_line_pixel_data* data)
 {
-    v4f32 verts[2];
-    v4f32_cpy(verts[0], cmd->verts[0]);
-    v4f32_cpy(verts[1], cmd->verts[1]);
-    v4f32_clamp(verts[0], -1.0f, 1.0f);
-    v4f32_clamp(verts[1], -1.0f, 1.0f);
+    struct mr_line_draw_cmd* cmd = data;
+    draw_shaded_pixel(cmd, pos);
+}
 
-    v2u16 iverts[2];
-    mr_fragcoord_to_fbcoord(cmd->fb, iverts[0], verts[0]);
-    mr_fragcoord_to_fbcoord(cmd->fb, iverts[1], verts[1]);
-    mr_draw_line_resolved(cmd, iverts[0], iverts[1]);
-    return MR_OK;
+mr_result_t mr_draw_line(struct mr_line_draw_cmd* cmd)
+{
+    return __mr_internal_draw_line(cmd, line_draw_pixel_func, cmd);
 }
