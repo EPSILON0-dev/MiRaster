@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
 
 #include "mr/math.h"
 #include "mr/platform.h"
@@ -64,7 +65,7 @@ static void render_image(struct fb_desc* fb, u32 frame)
         1.0f, 0.0f, 0.0f, 0.0f,  //
         0.0f, 1.0f, 0.0f, 0.0f,  //
         0.0f, 0.0f, 1.0f, 0.0f,  //
-        0.0f, 0.0f, 1.5f, 1.0f   //
+        0.0f, 0.0f, -0.3f, 1.0f  //
     };
 
     // clang-format off
@@ -72,8 +73,8 @@ static void render_image(struct fb_desc* fb, u32 frame)
     const mat4f32 perspective_mat = {
         1.0f / aspect, 0.0f, 0.0f, 0.0f,
         0.0f,          1.0f, 0.0f, 0.0f,
-        0.0f,          0.0f, 0.0f, 1.0f,
-        0.0f,          0.0f, 0.0f, 1.0f
+        0.0f,          0.0f, 1.0f, 1.0f,
+        0.0f,          0.0f, 0.0f, 0.0f
     };
     // clang-format on
 
@@ -95,7 +96,9 @@ static void render_image(struct fb_desc* fb, u32 frame)
         for (size_t j = 0; j < 2; j++)
         {
             mat4f32_mulvec(line[j], transform_mat, cubebase[i + j]);
-            v4f32_divs(line[j], line[j], line[j][3]);
+            f32 w = line[j][3];
+            line[j][3] = 1.0f;
+            v4f32_divs(line[j], line[j], f32_abs(w));
         }
 
         mr_draw_line(&cmd);

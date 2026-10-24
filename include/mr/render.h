@@ -33,6 +33,7 @@ void mr_fragcoord_to_fbcoord(struct fb_desc* fb, v2u16 fbcoord, v2f32 fragcoord)
 // Screen clearing
 // ----------------------------------------------------------------------
 
+// Clear the buffer with the given color
 mr_result_t mr_clear(struct fb_desc* fb, const v4u8 color);
 
 // ----------------------------------------------------------------------
@@ -47,6 +48,10 @@ struct mr_line_draw_cmd
     mr_shader_data* data;
 };
 
+// Render a line on without clamping or depth testing
+mr_result_t mr_draw_line_screenbound(struct mr_line_draw_cmd* cmd);
+
+// Render a line, do the clamping and depth testing
 mr_result_t mr_draw_line(struct mr_line_draw_cmd* cmd);
 
 #endif

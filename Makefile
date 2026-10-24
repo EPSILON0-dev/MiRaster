@@ -7,7 +7,7 @@ SRCS := $(wildcard platform/sdl2/*.c) $(wildcard raster/*.c)
 INC  := -Iinclude -I.
 
 DEBUG_FLAGS    := -g -O0 -fsanitize=address -fno-omit-frame-pointer
-RELEASE_FLAGS  := -Ofast -march=native
+RELEASE_FLAGS  := -Ofast -march=native -flto
 
 BUILD_DEBUG   := build/debug
 BUILD_RELEASE := build/release

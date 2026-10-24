@@ -69,6 +69,55 @@
         }                                                                   \
     }
 
+#define __vec_madd(base, len)                                                      \
+    MR_FORCE_STATIC_INLINE void v##len##base##_madd(__vec_typename(base, len) res, \
+        const __vec_typename(base, len) a, const __vec_typename(base, len) b,      \
+        const __vec_typename(base, len) add)                                       \
+    {                                                                              \
+        for (u8 i = 0; i < len; i++)                                               \
+        {                                                                          \
+            res[i] = a[i] * b[i] + add[i];                                         \
+        }                                                                          \
+    }
+
+#define __vec_abs(base, len)                                                      \
+    MR_FORCE_STATIC_INLINE void v##len##base##_abs(__vec_typename(base, len) vec) \
+    {                                                                             \
+        for (u8 i = 0; i < len; i++)                                              \
+        {                                                                         \
+            vec[i] = (vec[i] < 0) ? -vec[i] : vec[i];                             \
+        }                                                                         \
+    }
+
+#define __vec_sign(base, len)                                                      \
+    MR_FORCE_STATIC_INLINE void v##len##base##_sign(__vec_typename(base, len) vec) \
+    {                                                                              \
+        for (u8 i = 0; i < len; i++)                                               \
+        {                                                                          \
+            vec[i] = (vec[i] < 0) ? -1 : 1;                                        \
+        }                                                                          \
+    }
+
+#define __vec_min(base, len)                                                      \
+    MR_FORCE_STATIC_INLINE void v##len##base##_min(__vec_typename(base, len) res, \
+        const __vec_typename(base, len) a, const __vec_typename(base, len) b)     \
+    {                                                                             \
+        for (u8 i = 0; i < len; i++)                                              \
+        {                                                                         \
+            res[i] = a[i] < b[i] ? a[i] : b[i];                                   \
+        }                                                                         \
+    }
+
+#define __vec_max(base, len)                                                      \
+    MR_FORCE_STATIC_INLINE void v##len##base##_max(__vec_typename(base, len) res, \
+        const __vec_typename(base, len) a, const __vec_typename(base, len) b)     \
+    {                                                                             \
+        for (u8 i = 0; i < len; i++)                                              \
+        {                                                                         \
+            res[i] = a[i] > b[i] ? a[i] : b[i];                                   \
+        }                                                                         \
+    }
+
 // ----------------------------------------------------------------------
 // Operation groups
 // ----------------------------------------------------------------------
@@ -91,17 +140,29 @@
 // Per type groups
 // ----------------------------------------------------------------------
 
+#define __vec_common_type_define_impl(base, len) \
+    __vec_arithmetic_op_impl(base, len);         \
+    __vec_madd(base, len);                       \
+    __vec_cpy(base, len);                        \
+    __vec_min(base, len);                        \
+    __vec_max(base, len);                        \
+    __vec_clamp(base, len);
+
 #define __vec_float_type_define_impl(base, len) \
-    __vec_arithmetic_op_impl(base, len);        \
-    __vec_clamp(base, len);                     \
+    __vec_common_type_define_impl(base, len);   \
     __vec_dot(base, len);                       \
-    __vec_cpy(base, len);                       \
+    __vec_abs(base, len);                       \
+    __vec_sign(base, len);                      \
     __vec_lerp(base, len);
 
 #define __vec_int_type_define_impl(base, len) \
-    __vec_arithmetic_op_impl(base, len);      \
+    __vec_common_type_define_impl(base, len); \
     __vec_mod_op_impl(base, len);             \
-    __vec_cpy(base, len);                     \
-    __vec_clamp(base, len);
+    __vec_abs(base, len);                     \
+    __vec_sign(base, len);
+
+#define __vec_uint_type_define_impl(base, len) \
+    __vec_common_type_define_impl(base, len);  \
+    __vec_mod_op_impl(base, len);
 
 #endif

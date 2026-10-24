@@ -13,13 +13,13 @@
 __vec_typedef(__vec_float_type_define_impl, f32);
 __vec_typedef(__vec_float_type_define_impl, f64);
 __vec_typedef(__vec_int_type_define_impl, i8);
-__vec_typedef(__vec_int_type_define_impl, u8);
 __vec_typedef(__vec_int_type_define_impl, i16);
-__vec_typedef(__vec_int_type_define_impl, u16);
 __vec_typedef(__vec_int_type_define_impl, i32);
-__vec_typedef(__vec_int_type_define_impl, u32);
 __vec_typedef(__vec_int_type_define_impl, i64);
-__vec_typedef(__vec_int_type_define_impl, u64);
+__vec_typedef(__vec_uint_type_define_impl, u8);
+__vec_typedef(__vec_uint_type_define_impl, u16);
+__vec_typedef(__vec_uint_type_define_impl, u32);
+__vec_typedef(__vec_uint_type_define_impl, u64);
 #endif
 
 #ifdef MR_MATH_IMPL_AUTOVECTORIZATION
@@ -55,12 +55,17 @@ __mat_typedef(__mat_type_define_impl, f64);
     __scal_uint_typedef(X); \
     __scal_float_typedef(X);
 
-// abs
+// abs, sign
 __scal_int_typedef(__scal_abs);
 __scal_float_typedef(__scal_abs);
+__scal_int_typedef(__scal_sign);
+__scal_float_typedef(__scal_sign);
 
-// clamp
+// clamp, min, max
 __scal_typedef(__scal_clamp);
+__scal_typedef(__scal_min);
+__scal_typedef(__scal_max);
+
 
 // ----------------------------------------------------------------------
 // Type specific implementations
