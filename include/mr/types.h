@@ -32,8 +32,10 @@ enum mr_result
     MR_ERROR,
     MR_UNIMP,
     MR_INVALID_FORMAT,
+    MR_INVALID_TYPE,
     MR_MODIFIED,
     MR_OUT_OF_RANGE,
+    MR_UNREACHABLE,
     MR_NOMEM,
     MR_NOWAIT,
 };

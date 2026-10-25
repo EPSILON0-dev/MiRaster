@@ -31,21 +31,21 @@ typedef void (*mr_triangle_shader_func)(
 // Coord space conversions
 // ----------------------------------------------------------------------
 
-void mr_fbcoord_to_fragcoord(struct fb_desc* fb, v2f32 fragcoord, v2u16 fbcoord);
-void mr_fragcoord_to_fbcoord(struct fb_desc* fb, v2u16 fbcoord, v2f32 fragcoord);
+void mr_fbcoord_to_fragcoord(struct mr_fb_desc* fb, v2f32 fragcoord, v2u16 fbcoord);
+void mr_fragcoord_to_fbcoord(struct mr_fb_desc* fb, v2u16 fbcoord, v2f32 fragcoord);
 void mr_fbcoord_to_line_pos(
-    v4f32 pos, f32* factor, struct fb_desc* fb, v2u16 screenpos, v4f32* verts);
+    v4f32 pos, f32* factor, struct mr_fb_desc* fb, v2u16 screenpos, const v4f32* verts);
 void mr_fbcoord_to_triangle_pos(
-    v4f32 pos, v3f32 barycoord, struct fb_desc* fb, v2u16 screenpos, v4f32* verts);
+    v4f32 pos, v3f32 barycoord, struct mr_fb_desc* fb, v2u16 screenpos, const v4f32* verts);
 
 // ----------------------------------------------------------------------
 // Screen clearing
 // ----------------------------------------------------------------------
 
 // Clear the buffer with the given color
-mr_result_t mr_clear_all(struct fb_desc* fb, const v4u8 color);
-mr_result_t mr_clear_color(struct fb_desc* fb, const v4u8 color);
-mr_result_t mr_clear_depth(struct fb_desc* fb);
+mr_result_t mr_clear_all(struct mr_fb_desc* fb, const v4u8 color);
+mr_result_t mr_clear_color(struct mr_fb_desc* fb, const v4u8 color);
+mr_result_t mr_clear_depth(struct mr_fb_desc* fb);
 
 // ----------------------------------------------------------------------
 // Line drawing
@@ -53,8 +53,8 @@ mr_result_t mr_clear_depth(struct fb_desc* fb);
 
 struct mr_line_draw_cmd
 {
-    struct fb_desc* fb;
-    v4f32* verts;
+    struct mr_fb_desc* fb;
+    const v4f32* verts;
     mr_line_shader_func shader;
     mr_shader_data* data;
 };
@@ -86,15 +86,23 @@ struct mr_triangle_shader_inputs
     v3f32 barycoord;
 };
 
+// Note: `inds` are a hint to be used in shaders, they are *NOT* indices selecting the triangle's
+// vertices. They're only use is in the shader
 struct mr_triangle_draw_cmd
 {
-    struct fb_desc* fb;
-    v4f32* verts;
+    struct mr_fb_desc* fb;
+    const v4f32* verts;
+    const u16* inds;
+    u16 stride;
     mr_triangle_shader_func shader;
     mr_shader_data* data;
 };
 
 // We do depth testing and all the fun for all triangles
 mr_result_t mr_draw_triangle(struct mr_triangle_draw_cmd* cmd);
+
+// I feel like every shader will end up using this...
+void mr_triangle_shader_normalize_barycoord(
+    v3f32 barycoord, const struct mr_triangle_shader_inputs* inputs);
 
 #endif

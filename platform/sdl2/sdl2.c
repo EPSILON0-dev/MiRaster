@@ -13,6 +13,15 @@ static SDL_Surface* s_fb_surface;
 static u32* s_pixels;
 static u16 s_window_width = MR_SDL2_DEFAULT_WIDTH;
 static u16 s_window_height = MR_SDL2_DEFAULT_HEIGHT;
+static u64 s_render_start_ns;
+static u64 s_render_end_ns;
+
+static u64 get_time_ns(void)
+{
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (uint64_t)ts.tv_sec * 1000000000ULL + ts.tv_nsec;
+}
 
 mr_result_t platform_init(void)
 {
@@ -69,7 +78,7 @@ mr_result_t platform_fini(void)
     return MR_OK;
 }
 
-mr_result_t platform_get_fb_format(struct fb_desc* desc)
+mr_result_t platform_get_fb_format(struct mr_fb_desc* desc)
 {
     desc->width = s_window_width / MR_SDL2_DEFAULT_SCALE;
     desc->height = s_window_height / MR_SDL2_DEFAULT_SCALE;
@@ -79,7 +88,7 @@ mr_result_t platform_get_fb_format(struct fb_desc* desc)
     return MR_OK;
 }
 
-static mr_result_t validate_fb_format(struct fb_desc* desc)
+static mr_result_t validate_fb_format(struct mr_fb_desc* desc)
 {
     bool format_valid = true;
     format_valid &= desc->width == s_window_width / MR_SDL2_DEFAULT_SCALE;
@@ -101,7 +110,7 @@ static u32 swizzle_abgr2rgba(u32 pix)
     // clang-format on
 }
 
-mr_result_t platform_blit_fb(struct fb_desc* desc)
+mr_result_t platform_blit_fb(struct mr_fb_desc* desc)
 {
     if (validate_fb_format(desc) != MR_OK)
     {
@@ -121,10 +130,11 @@ mr_result_t platform_blit_fb(struct fb_desc* desc)
 
     SDL_BlitScaled(s_fb_surface, NULL, s_screen_surface, NULL);
     SDL_UpdateWindowSurface(s_window);
+    s_render_end_ns = get_time_ns();
     return MR_OK;
 }
 
-mr_result_t platform_debug_blit_depth(struct fb_desc* desc)
+mr_result_t platform_debug_blit_depth(struct mr_fb_desc* desc)
 {
     if (validate_fb_format(desc) != MR_OK)
     {
@@ -146,20 +156,27 @@ mr_result_t platform_debug_blit_depth(struct fb_desc* desc)
 
     SDL_BlitScaled(s_fb_surface, NULL, s_screen_surface, NULL);
     SDL_UpdateWindowSurface(s_window);
+    s_render_end_ns = get_time_ns();
     return MR_OK;
-}
-
-static uint64_t get_time_ns(void)
-{
-    struct timespec ts;
-    clock_gettime(CLOCK_MONOTONIC, &ts);
-    return (uint64_t)ts.tv_sec * 1000000000ULL + ts.tv_nsec;
 }
 
 mr_result_t platform_await_vsync(u16 framerate)
 {
-    (void)framerate;
-    return MR_UNIMP;
+    static u64 last_present_ns = 0;
+    const u64 frame_budget_ns = 1000000000ULL / framerate;
+
+    u64 elapsed_ns = get_time_ns() - last_present_ns;
+    if (elapsed_ns < frame_budget_ns)
+    {
+        struct timespec sleep = {
+            .tv_sec = 0,
+            .tv_nsec = (long)(frame_budget_ns - elapsed_ns),
+        };
+        nanosleep(&sleep, &sleep);
+    }
+
+    last_present_ns = get_time_ns();
+    return MR_OK;
 }
 
 mr_result_t platform_get_last_frame_time_us(u32* us)
@@ -172,8 +189,16 @@ mr_result_t platform_get_last_frame_time_us(u32* us)
     return MR_OK;
 }
 
+mr_result_t platform_get_render_time_us(u32* us)
+{
+    *us = (u32)((s_render_end_ns - s_render_start_ns) / 1000);
+    return MR_OK;
+}
+
 mr_result_t platform_should_exit(bool* should_exit)
 {
+    s_render_start_ns = get_time_ns();
+
     SDL_Event e;
     *should_exit = false;
     while (SDL_PollEvent(&e) != 0)

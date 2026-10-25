@@ -90,4 +90,7 @@ MR_FORCE_STATIC_INLINE void mr_color_u8_to_f32(v4f32 out, v4u8 in)
     }
 }
 
+#define MR_RAD2DEG(x) ((x) * (180.0f / (f32)M_PI))
+#define MR_DEG2RAD(x) ((x) * ((f32)M_PI / 180.0f))
+
 #endif

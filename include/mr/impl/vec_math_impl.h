@@ -130,6 +130,24 @@
         }                                                                         \
     }
 
+#define __vec_zeros(base, len)                                                      \
+    MR_FORCE_STATIC_INLINE void v##len##base##_zeros(__vec_typename(base, len) vec) \
+    {                                                                               \
+        for (u8 i = 0; i < len; i++)                                                \
+        {                                                                           \
+            vec[i] = 0;                                                             \
+        }                                                                           \
+    }
+
+#define __vec_ones(base, len)                                                      \
+    MR_FORCE_STATIC_INLINE void v##len##base##_ones(__vec_typename(base, len) vec) \
+    {                                                                              \
+        for (u8 i = 0; i < len; i++)                                               \
+        {                                                                          \
+            vec[i] = 1;                                                            \
+        }                                                                          \
+    }
+
 // ----------------------------------------------------------------------
 // Operation groups
 // ----------------------------------------------------------------------
@@ -159,6 +177,8 @@
     __vec_cpy(base, len);                        \
     __vec_min(base, len);                        \
     __vec_max(base, len);                        \
+    __vec_zeros(base, len);                      \
+    __vec_ones(base, len);                       \
     __vec_clamp(base, len);
 
 #define __vec_float_type_define_impl(base, len) \

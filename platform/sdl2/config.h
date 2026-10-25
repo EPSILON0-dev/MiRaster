@@ -2,20 +2,25 @@
 #define MR_SDL2_PLATFORM_CONFIG_H
 
 // #define MR_SDL2_MINI
-#define MR_SDL2_MID
+// #define MR_SDL2_MID
+// #define MR_SDL2_LARGE
 
 #ifdef MR_SDL2_MINI
 #define MR_SDL2_DEFAULT_WIDTH ((u32)(1920 / 8))
 #define MR_SDL2_DEFAULT_HEIGHT ((u32)(1080 / 8))
 #define MR_SDL2_DEFAULT_SCALE 1
 #elif defined(MR_SDL2_MID)
-#define MR_SDL2_DEFAULT_WIDTH ((u32)(1920 / 4))
-#define MR_SDL2_DEFAULT_HEIGHT ((u32)(1080 / 4))
-#define MR_SDL2_DEFAULT_SCALE 2
-#else
+#define MR_SDL2_DEFAULT_WIDTH ((u32)(1920 / 2))
+#define MR_SDL2_DEFAULT_HEIGHT ((u32)(1080 / 2))
+#define MR_SDL2_DEFAULT_SCALE 4
+#elif defined(MR_SDL2_LARGE)
 #define MR_SDL2_DEFAULT_WIDTH 1920
 #define MR_SDL2_DEFAULT_HEIGHT 1080
 #define MR_SDL2_DEFAULT_SCALE 8
+#else
+#define MR_SDL2_DEFAULT_WIDTH 1920 / 2
+#define MR_SDL2_DEFAULT_HEIGHT 1080 / 2
+#define MR_SDL2_DEFAULT_SCALE 4
 #endif
 
 #endif

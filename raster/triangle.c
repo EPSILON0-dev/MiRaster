@@ -18,7 +18,7 @@ static struct
     u16 fb_height;
 } s_triange_renderer_store;
 
-MR_FORCE_STATIC_INLINE mr_result_t allocate_edge_buff(struct fb_desc* fb)
+MR_FORCE_STATIC_INLINE mr_result_t allocate_edge_buff(struct mr_fb_desc* fb)
 {
     if (s_triange_renderer_store.edge_buff)
     {
@@ -102,8 +102,8 @@ mr_result_t mr_draw_triangle(struct mr_triangle_draw_cmd* cmd)
         triedges[i].right = 0;
     }
 
-    // Draw the lines
-    v4f32 verts[2];
+    // Draw the outer lines
+    v4f32 verts[3];
     struct mr_line_draw_cmd linecmd = {
         .verts = verts,
         .fb = cmd->fb,
@@ -111,7 +111,6 @@ mr_result_t mr_draw_triangle(struct mr_triangle_draw_cmd* cmd)
         .data = NULL,
     };
 
-    // Draw the outer lines
     for (u8 i = 0; i < 3; i++)
     {
         v4f32_cpy(verts[0], cmd->verts[i]);
@@ -131,4 +130,18 @@ mr_result_t mr_draw_triangle(struct mr_triangle_draw_cmd* cmd)
     }
 
     return MR_OK;
+}
+
+void mr_triangle_shader_normalize_barycoord(
+    v3f32 barycoord, const struct mr_triangle_shader_inputs* inputs)
+{
+    v3f32 w_vec = {
+        inputs->cmd->verts[0][3],  //
+        inputs->cmd->verts[1][3],  //
+        inputs->cmd->verts[2][3],  //
+    };
+    v3f32_mul(barycoord, inputs->barycoord, w_vec);
+
+    const f32 sum = barycoord[0] + barycoord[1] + barycoord[2];
+    v3f32_muls(barycoord, barycoord, 1.0f / sum);
 }

@@ -4,7 +4,7 @@
 #include "mr/config.h"
 #include "mr/types.h"
 
-struct fb_desc
+struct mr_fb_desc
 {
     u16 width;
     u16 height;
@@ -21,7 +21,7 @@ struct fb_desc
     void* depth;
 };
 
-MR_FORCE_STATIC_INLINE mr_result_t mr_fb_draw_pixel(struct fb_desc* fb, v2u16 pos, v4u8 color)
+MR_FORCE_STATIC_INLINE mr_result_t mr_fb_draw_pixel(struct mr_fb_desc* fb, v2u16 pos, v4u8 color)
 {
     if (pos[0] >= fb->width || pos[1] >= fb->height)
     {
@@ -34,7 +34,7 @@ MR_FORCE_STATIC_INLINE mr_result_t mr_fb_draw_pixel(struct fb_desc* fb, v2u16 po
     return MR_OK;
 }
 
-MR_FORCE_STATIC_INLINE mr_result_t mr_fb_draw_depth(struct fb_desc* fb, v2u16 pos, f32 depth)
+MR_FORCE_STATIC_INLINE mr_result_t mr_fb_draw_depth(struct mr_fb_desc* fb, v2u16 pos, f32 depth)
 {
     if (pos[0] >= fb->width || pos[1] >= fb->height)
     {
@@ -47,7 +47,7 @@ MR_FORCE_STATIC_INLINE mr_result_t mr_fb_draw_depth(struct fb_desc* fb, v2u16 po
     return MR_OK;
 }
 
-MR_FORCE_STATIC_INLINE float mr_fb_get_depth(struct fb_desc* fb, v2u16 pos)
+MR_FORCE_STATIC_INLINE float mr_fb_get_depth(struct mr_fb_desc* fb, v2u16 pos)
 {
     if (pos[0] >= fb->width || pos[1] >= fb->height)
     {
