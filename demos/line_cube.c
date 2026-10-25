@@ -1,14 +1,5 @@
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <unistd.h>
-
 #include "mr/math.h"
-#include "mr/platform.h"
 #include "mr/render.h"
-#include "platform/sdl2/config.h"
 
 // clang-format off
 v4f32 cubebase[] =
@@ -30,20 +21,20 @@ v4f32 cubebase[] =
 };
 // clang-format on
 
-void white_line_shader(v4f32 color, v2u16 screenpos, struct mr_line_draw_cmd* cmd)
+void tri_shader(v4f32 color, v2u16 screenpos, const struct mr_line_draw_cmd* cmd)
 {
     v4f32 pos;
     f32 factor;
     mr_fbcoord_to_line_pos(pos, &factor, cmd->fb, screenpos, cmd->verts);
 
     const f32 brightness = f32_clamp(pos[3], 0.0f, 1.0f);
-    color[0] = factor * brightness;
-    color[1] = brightness / 2.0f;
-    color[2] = (1.0f - factor) * brightness;
+    color[0] = brightness;
+    color[1] = (factor * brightness) * 0.5f + 0.5f;
+    color[2] = ((1.0f - factor) * brightness) * 0.5f + 0.5f;
     color[3] = 1.0f;
 }
 
-static void render_image(struct fb_desc* fb, u32 frame)
+void render_image(struct fb_desc* fb, u32 frame)
 {
     const v4u8 clear_color = {0, 0, 0, 255};
     mr_clear_color(fb, clear_color);
@@ -75,7 +66,7 @@ static void render_image(struct fb_desc* fb, u32 frame)
     };
 
     // clang-format off
-    const f32 aspect = (f32)MR_SDL2_DEFAULT_WIDTH / (f32)MR_SDL2_DEFAULT_HEIGHT;
+    const f32 aspect = (f32)fb->width / (f32)fb->height;
     const mat4f32 perspective_mat = {
         1.0f / aspect, 0.0f, 0.0f, 0.0f,
         0.0f,          1.0f, 0.0f, 0.0f,
@@ -93,7 +84,7 @@ static void render_image(struct fb_desc* fb, u32 frame)
     struct mr_line_draw_cmd cmd = {
         .fb = fb,
         .verts = line,
-        .shader = white_line_shader,
+        .shader = tri_shader,
         .data = NULL,
     };
 
@@ -109,42 +100,4 @@ static void render_image(struct fb_desc* fb, u32 frame)
 
         mr_draw_line(&cmd);
     }
-}
-
-int main(void)
-{
-    if (platform_init() != MR_OK)
-    {
-        platform_fini();
-        return 1;
-    }
-
-    struct fb_desc fb;
-    platform_get_fb_format(&fb);
-    size_t fbsz = fb.width * fb.height * 4;
-    fb.pixels = malloc(fbsz);
-
-    u32 frame = 0;
-    for (;;)
-    {
-        bool should_exit = false;
-        platform_should_exit(&should_exit);
-        if (should_exit) break;
-
-        render_image(&fb, frame++);
-
-        platform_blit_fb(&fb);
-        platform_await_vsync(30);
-
-        u32 frametime;
-        platform_get_last_frame_time_us(&frametime);
-        printf("Frame time: %6.2fms       \r", frametime / 1000.0f);
-        fflush(stdout);
-
-        usleep(10000);
-    }
-
-    free(fb.pixels);
-    platform_fini();
-    return 0;
 }

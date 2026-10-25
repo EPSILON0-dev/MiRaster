@@ -13,4 +13,6 @@ mr_result_t platform_await_vsync(u16 framerate);
 mr_result_t platform_get_last_frame_time_us(u32 *us);
 mr_result_t platform_should_exit(bool *should_exit);
 
+mr_result_t platform_debug_blit_depth(struct fb_desc* desc);
+
 #endif

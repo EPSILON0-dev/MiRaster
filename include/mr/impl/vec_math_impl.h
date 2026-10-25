@@ -1,7 +1,7 @@
 #ifndef MR_VEC_MATH_IMPL_H
 #define MR_VEC_MATH_IMPL_H
 
-#include <math.h> // IWYU pragma: keep
+#include <math.h>  // IWYU pragma: keep
 
 #include "mr/config.h"
 
@@ -82,6 +82,16 @@
         }                                                                          \
     }
 
+#define __vec_madds(base, len)                                                          \
+    MR_FORCE_STATIC_INLINE void v##len##base##_madds(__vec_typename(base, len) res,     \
+        const __vec_typename(base, len) a, base b, const __vec_typename(base, len) add) \
+    {                                                                                   \
+        for (u8 i = 0; i < len; i++)                                                    \
+        {                                                                               \
+            res[i] = a[i] * b + add[i];                                                 \
+        }                                                                               \
+    }
+
 #define __vec_abs(base, len)                                                      \
     MR_FORCE_STATIC_INLINE void v##len##base##_abs(__vec_typename(base, len) vec) \
     {                                                                             \
@@ -145,6 +155,7 @@
 #define __vec_common_type_define_impl(base, len) \
     __vec_arithmetic_op_impl(base, len);         \
     __vec_madd(base, len);                       \
+    __vec_madds(base, len);                      \
     __vec_cpy(base, len);                        \
     __vec_min(base, len);                        \
     __vec_max(base, len);                        \

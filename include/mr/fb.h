@@ -55,7 +55,7 @@ MR_FORCE_STATIC_INLINE float mr_fb_get_depth(struct fb_desc* fb, v2u16 pos)
     }
 
     const size_t idx = pos[1] * fb->width + pos[0];
-    return ((u32*)fb->depth)[idx];
+    return ((f32*)fb->depth)[idx];
 }
 
 #endif

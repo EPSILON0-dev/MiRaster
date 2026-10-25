@@ -22,8 +22,10 @@ typedef void mr_shader_data;
 //  we supply is a screen position, the shader is welcome to compute whatever it needs out of it.
 //  But if all it does is return a color, no time is wasted computing the fragment coordinates.
 
-typedef void (*mr_line_shader_func)(v4f32 color, v2u16 screenpos, struct mr_line_draw_cmd* cmd);
-typedef void (*mr_triangle_shader_func)(v4f32 color, struct mr_triangle_shader_inputs* inputs);
+typedef void (*mr_line_shader_func)(
+    v4f32 color, v2u16 screenpos, const struct mr_line_draw_cmd* cmd);
+typedef void (*mr_triangle_shader_func)(
+    v4f32 color, const struct mr_triangle_shader_inputs* inputs);
 
 // ----------------------------------------------------------------------
 // Coord space conversions
@@ -31,7 +33,10 @@ typedef void (*mr_triangle_shader_func)(v4f32 color, struct mr_triangle_shader_i
 
 void mr_fbcoord_to_fragcoord(struct fb_desc* fb, v2f32 fragcoord, v2u16 fbcoord);
 void mr_fragcoord_to_fbcoord(struct fb_desc* fb, v2u16 fbcoord, v2f32 fragcoord);
-void mr_fbcoord_to_line_pos(v4f32 pos, f32 *factor, struct fb_desc* fb, v2u16 screenpos, v4f32* verts);
+void mr_fbcoord_to_line_pos(
+    v4f32 pos, f32* factor, struct fb_desc* fb, v2u16 screenpos, v4f32* verts);
+void mr_fbcoord_to_triangle_pos(
+    v4f32 pos, v3f32 barycoord, struct fb_desc* fb, v2u16 screenpos, v4f32* verts);
 
 // ----------------------------------------------------------------------
 // Screen clearing
@@ -76,12 +81,9 @@ mr_result_t mr_draw_line(struct mr_line_draw_cmd* cmd);
 
 struct mr_triangle_shader_inputs
 {
-    struct fb_desc* fb;
     struct mr_triangle_draw_cmd* cmd;
-    mr_shader_data* data;
-    v4f32* verts;
     v4f32 pos;
-    v2f32 barycoord;
+    v3f32 barycoord;
 };
 
 struct mr_triangle_draw_cmd

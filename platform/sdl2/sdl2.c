@@ -3,6 +3,7 @@
 #include <unistd.h>
 
 #include "mr/fb.h"
+#include "mr/math.h"
 #include "mr/types.h"
 #include "platform/sdl2/config.h"
 
@@ -114,6 +115,31 @@ mr_result_t platform_blit_fb(struct fb_desc* desc)
         for (size_t i = 0; i < fb_pixels; i++)
         {
             ((u32*)s_pixels)[i] = swizzle_abgr2rgba(((u32*)desc->pixels)[i]);
+        }
+        SDL_UnlockSurface(s_fb_surface);
+    }
+
+    SDL_BlitScaled(s_fb_surface, NULL, s_screen_surface, NULL);
+    SDL_UpdateWindowSurface(s_window);
+    return MR_OK;
+}
+
+mr_result_t platform_debug_blit_depth(struct fb_desc* desc)
+{
+    if (validate_fb_format(desc) != MR_OK)
+    {
+        fprintf(stderr, "[platform:SDL2] Window could not be created! (%s)\n", SDL_GetError());
+        return MR_INVALID_FORMAT;
+    }
+
+    {
+        SDL_LockSurface(s_fb_surface);
+        const size_t fb_pixels = desc->width * desc->height;
+        for (size_t i = 0; i < fb_pixels; i++)
+        {
+            u8 b = (u8)f32_clamp((1.0f / ((f32*)desc->depth)[i]) * 255.0f / 20.0f, 0.0f, 255.0f);
+            u32 color = (255 << 24) | (b << 16) | (b << 8) | (b);
+            ((u32*)s_pixels)[i] = color;
         }
         SDL_UnlockSurface(s_fb_surface);
     }
