@@ -114,6 +114,8 @@ static u32 swizzle_abgr2rgba(u32 pix)
 
 mr_result_t platform_blit_fb(struct mr_fb_desc* desc)
 {
+    s_render_end_ns = get_time_ns();
+
     if (validate_fb_format(desc) != MR_OK)
     {
         fprintf(stderr, "[platform:SDL2] Window could not be created! (%s)\n", SDL_GetError());
@@ -132,7 +134,6 @@ mr_result_t platform_blit_fb(struct mr_fb_desc* desc)
 
     SDL_BlitScaled(s_fb_surface, NULL, s_screen_surface, NULL);
     SDL_UpdateWindowSurface(s_window);
-    s_render_end_ns = get_time_ns();
     return MR_OK;
 }
 

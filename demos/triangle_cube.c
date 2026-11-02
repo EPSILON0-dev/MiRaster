@@ -69,14 +69,13 @@ static struct mr_model s_model = {
 };
 
 static struct mr_camera s_camera = {
-    .pos = {REAL(0), REAL(0), REAL(0)},
-    .euler = {REAL(0), REAL(0), REAL(0)},
+    .pos = {REAL(0), REAL(1.25f), REAL(0)},
+    .euler = {REAL(30.0f / 180.0f * M_PI), REAL(0), REAL(0)},
     .aspect = REAL(0),  // Set in the setup
     .yfovdegrees = REAL(90),
     .near = REAL(0.01f),
     .far = REAL(1000),
 };
-
 
 void render_setup(struct mr_fb_desc* fb)
 {

@@ -126,7 +126,7 @@ void mat4_perspective(mat4 mat, real yfovdegrees, real aspect, real near, real f
     memset(mat, 0, sizeof(mat4));
 
     mat[0] = real_div(f, aspect);
-    mat[5] = f;
+    mat[5] = real_inv(f);
     mat[10] = real_div(real_add(far, near), real_sub(far, near));
     mat[11] = REAL(1);
     mat[14] = real_div(real_mul(REAL(2), real_mul(far, near)), real_sub(far, near));
