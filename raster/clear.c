@@ -17,7 +17,7 @@ mr_result_t mr_clear_depth(struct mr_fb_desc* fb)
 {
     for (size_t i = 0; i < fb->width * fb->height; i++)
     {
-        ((f32*)fb->depth)[i] = 0;
+        ((real*)fb->depth)[i] = 0;
     }
     return MR_OK;
 }

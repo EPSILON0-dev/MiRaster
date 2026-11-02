@@ -1,7 +1,7 @@
 #include <string.h>
 
 #include "mr/fb.h"
-#include "mr/math.h"
+#include "mr/math.h"  // IWYU pragma: keep
 #include "mr/render.h"
 #include "mr/types.h"
 
@@ -10,10 +10,10 @@
 
 MR_FORCE_STATIC_INLINE void draw_shaded_pixel(struct mr_line_draw_cmd* cmd, v2u16 pos)
 {
-    v4f32 fcolor;
+    v4 fcolor;
     v4u8 ucolor;
     cmd->shader(fcolor, pos, cmd);
-    mr_color_f32_to_u8(ucolor, fcolor);
+    mr_color_real_to_u8(ucolor, fcolor);
     mr_fb_draw_pixel(cmd->fb, pos, ucolor);
 }
 
@@ -119,79 +119,89 @@ void __mr_internal_draw_line_resolved(
     }
 }
 
-MR_FORCE_STATIC_INLINE mr_result_t mr_clamp_line_to_front(v4f32 p0, v4f32 p1)
+MR_FORCE_STATIC_INLINE mr_result_t mr_clamp_line_to_front(v4 p0, v4 p1)
 {
-    if (p0[2] >= 0 && p1[2] >= 0)
+    if (real_ge(p0[2], REAL(0)) && real_ge(p1[2], REAL(0)))
     {
         return MR_OK;
     }
 
-    if (p0[2] < 0 && p1[2] < 0)
+    if (real_lt(p0[2], REAL(0)) && real_lt(p1[2], REAL(0)))
     {
         return MR_OUT_OF_RANGE;
     }
 
-    const f32 t = -p0[2] / (p1[2] - p0[2]);
+    const real t = real_div(real_inv(p0[2]), real_sub(p1[2], p0[2]));
 
-    v2f32 d, intersection;
-    v2f32_sub(d, p1, p0);
-    v2f32_muls(d, d, t);
-    v2f32_add(intersection, p0, d);
+    v2 d, intersection;
+    v2_sub(d, p1, p0);
+    v2_muls(d, d, t);
+    v2_add(intersection, p0, d);
 
-    if (p0[2] < 0)
+    if (real_lt(p0[2], REAL(0)))
     {
-        v2f32_cpy(p0, intersection);
-        p0[2] = 0;
+        v2_cpy(p0, intersection);
+        p0[2] = REAL(0);
     }
     else
     {
-        v2f32_cpy(p1, intersection);
-        p1[2] = 0;
+        v2_cpy(p1, intersection);
+        p1[2] = REAL(0);
     }
 
     return MR_MODIFIED;
 }
 
-MR_FORCE_STATIC_INLINE mr_result_t mr_clamp_line_to_screen(v2f32 p0, v2f32 p1)
+MR_FORCE_STATIC_INLINE mr_result_t mr_clamp_line_to_screen(v2 p0, v2 p1)
 {
-    float t_min = 0.0f;
-    float t_max = 1.0f;
-    v2f32 d;
-    v2f32_sub(d, p1, p0);
+    real t_min = REAL(0);
+    real t_max = REAL(1);
+    v2 d;
+    v2_sub(d, p1, p0);
 
-    v4f32 p = {-d[0], d[0], -d[1], d[1]};
-    v4f32 q = {p0[0] + 1.0f, 1.0f - p0[0], p0[1] + 1.0f, 1.0f - p0[1]};
+    v4 p = {
+        real_inv(d[0]),  //
+        d[0],            //
+        real_inv(d[1]),  //
+        d[1]             //
+    };
+    v4 q = {
+        real_add(p0[0], REAL(1)),  //
+        real_sub(REAL(1), p0[0]),  //
+        real_add(p0[1], REAL(1)),  //
+        real_sub(REAL(1), p0[1])   //
+    };
 
     for (u8 i = 0; i < 4; ++i)
     {
-        if (p[i] == 0.0f)
+        if (real_eq(p[i], REAL(0)))
         {
-            if (q[i] < 0.0f) return MR_OUT_OF_RANGE;
+            if (real_lt(q[i], REAL(0))) return MR_OUT_OF_RANGE;
         }
         else
         {
-            f32 t = q[i] / p[i];
+            const real t = real_div(q[i], p[i]);
 
-            if (p[i] < 0.0f)
-                t_min = f32_max(t_min, t);
+            if (real_lt(p[i], REAL(0)))
+                t_min = real_max(t_min, t);
             else
-                t_max = f32_min(t_max, t);
+                t_max = real_min(t_max, t);
 
-            if (t_min > t_max) return MR_OUT_OF_RANGE;
+            if (real_gt(t_min, t_max)) return MR_OUT_OF_RANGE;
         }
     }
 
-    p1[0] = p0[0] + d[0] * t_max;
-    p1[1] = p0[1] + d[1] * t_max;
-    p0[0] += d[0] * t_min;
-    p0[1] += d[1] * t_min;
+    p1[0] = real_add(p0[0], real_mul(d[0], t_max));
+    p1[1] = real_add(p0[1], real_mul(d[1], t_max));
+    p0[0] = real_add(p0[0], real_mul(d[0], t_min));
+    p0[1] = real_add(p0[1], real_mul(d[1], t_min));
     return MR_MODIFIED;
 }
 
 mr_result_t __mr_internal_draw_line(struct mr_line_draw_cmd* cmd,
     __mr_internal_line_pixel_func func, __mr_internal_line_pixel_data* data)
 {
-    v4f32 verts[2];
+    v4 verts[2];
     memcpy(verts, cmd->verts, sizeof(verts));
 
     if (mr_clamp_line_to_front(verts[0], verts[1]) == MR_OUT_OF_RANGE)

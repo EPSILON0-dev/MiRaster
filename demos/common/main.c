@@ -21,7 +21,7 @@ int main(void)
     platform_get_fb_format(&fb);
     size_t fbsz = fb.width * fb.height;
     fb.pixels = malloc(fbsz * sizeof(v4u8));
-    fb.depth = malloc(fbsz * sizeof(f32));
+    fb.depth = malloc(fbsz * sizeof(real));
 
     render_setup(&fb);
 

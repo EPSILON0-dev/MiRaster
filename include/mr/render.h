@@ -23,20 +23,20 @@ typedef void mr_shader_data;
 //  But if all it does is return a color, no time is wasted computing the fragment coordinates.
 
 typedef void (*mr_line_shader_func)(
-    v4f32 color, v2u16 screenpos, const struct mr_line_draw_cmd* cmd);
+    v4 color, v2u16 screenpos, const struct mr_line_draw_cmd* cmd);
 typedef void (*mr_triangle_shader_func)(
-    v4f32 color, const struct mr_triangle_shader_inputs* inputs);
+    v4 color, const struct mr_triangle_shader_inputs* inputs);
 
 // ----------------------------------------------------------------------
 // Coord space conversions
 // ----------------------------------------------------------------------
 
-void mr_fbcoord_to_fragcoord(struct mr_fb_desc* fb, v2f32 fragcoord, v2u16 fbcoord);
-void mr_fragcoord_to_fbcoord(struct mr_fb_desc* fb, v2u16 fbcoord, v2f32 fragcoord);
+void mr_fbcoord_to_fragcoord(struct mr_fb_desc* fb, v2 fragcoord, v2u16 fbcoord);
+void mr_fragcoord_to_fbcoord(struct mr_fb_desc* fb, v2u16 fbcoord, v2 fragcoord);
 void mr_fbcoord_to_line_pos(
-    v4f32 pos, f32* factor, struct mr_fb_desc* fb, v2u16 screenpos, const v4f32* verts);
+    v4 pos, real* factor, struct mr_fb_desc* fb, v2u16 screenpos, const v4* verts);
 void mr_fbcoord_to_triangle_pos(
-    v4f32 pos, v3f32 barycoord, struct mr_fb_desc* fb, v2u16 screenpos, const v4f32* verts);
+    v4 pos, v3 barycoord, struct mr_fb_desc* fb, v2u16 screenpos, const v4* verts);
 
 // ----------------------------------------------------------------------
 // Screen clearing
@@ -54,7 +54,7 @@ mr_result_t mr_clear_depth(struct mr_fb_desc* fb);
 struct mr_line_draw_cmd
 {
     struct mr_fb_desc* fb;
-    const v4f32* verts;
+    const v4* verts;
     mr_line_shader_func shader;
     mr_shader_data* data;
 };
@@ -82,8 +82,8 @@ mr_result_t mr_draw_line(struct mr_line_draw_cmd* cmd);
 struct mr_triangle_shader_inputs
 {
     struct mr_triangle_draw_cmd* cmd;
-    v4f32 pos;
-    v3f32 barycoord;
+    v4 pos;
+    v3 barycoord;
 };
 
 // Note: `inds` are a hint to be used in shaders, they are *NOT* indices selecting the triangle's
@@ -91,7 +91,7 @@ struct mr_triangle_shader_inputs
 struct mr_triangle_draw_cmd
 {
     struct mr_fb_desc* fb;
-    const v4f32* verts;
+    const v4* verts;
     const u16* inds;
     u16 stride;
     mr_triangle_shader_func shader;
@@ -103,6 +103,6 @@ mr_result_t mr_draw_triangle(struct mr_triangle_draw_cmd* cmd);
 
 // I feel like every shader will end up using this...
 void mr_triangle_shader_normalize_barycoord(
-    v3f32 barycoord, const struct mr_triangle_shader_inputs* inputs);
+    v3 barycoord, const struct mr_triangle_shader_inputs* inputs);
 
 #endif

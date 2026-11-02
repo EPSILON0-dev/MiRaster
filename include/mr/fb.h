@@ -34,7 +34,7 @@ MR_FORCE_STATIC_INLINE mr_result_t mr_fb_draw_pixel(struct mr_fb_desc* fb, v2u16
     return MR_OK;
 }
 
-MR_FORCE_STATIC_INLINE mr_result_t mr_fb_draw_depth(struct mr_fb_desc* fb, v2u16 pos, f32 depth)
+MR_FORCE_STATIC_INLINE mr_result_t mr_fb_draw_depth(struct mr_fb_desc* fb, v2u16 pos, real depth)
 {
     if (pos[0] >= fb->width || pos[1] >= fb->height)
     {
@@ -42,12 +42,12 @@ MR_FORCE_STATIC_INLINE mr_result_t mr_fb_draw_depth(struct mr_fb_desc* fb, v2u16
     }
 
     const size_t idx = pos[1] * fb->width + pos[0];
-    ((f32*)fb->depth)[idx] = depth;
+    ((real*)fb->depth)[idx] = depth;
 
     return MR_OK;
 }
 
-MR_FORCE_STATIC_INLINE float mr_fb_get_depth(struct mr_fb_desc* fb, v2u16 pos)
+MR_FORCE_STATIC_INLINE real mr_fb_get_depth(struct mr_fb_desc* fb, v2u16 pos)
 {
     if (pos[0] >= fb->width || pos[1] >= fb->height)
     {
@@ -55,7 +55,7 @@ MR_FORCE_STATIC_INLINE float mr_fb_get_depth(struct mr_fb_desc* fb, v2u16 pos)
     }
 
     const size_t idx = pos[1] * fb->width + pos[0];
-    return ((f32*)fb->depth)[idx];
+    return ((real*)fb->depth)[idx];
 }
 
 #endif

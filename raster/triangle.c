@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #include "mr/fb.h"
-#include "mr/math.h"
+#include "mr/math.h"  // IWYU pragma: keep
 #include "mr/render.h"
 #include "mr/types.h"
 
@@ -45,14 +45,14 @@ static void draw_triangle_pixel(v2u16 pos, __mr_internal_line_pixel_data* data)
     mr_fbcoord_to_triangle_pos(inputs.pos, inputs.barycoord, cmd->fb, pos, cmd->verts);
 
     // Perform a depth test
-    const f32 depth = mr_fb_get_depth(cmd->fb, pos);
-    if (inputs.pos[3] <= depth) return;
+    const real depth = mr_fb_get_depth(cmd->fb, pos);
+    if (real_le(inputs.pos[3], depth)) return;
 
     // Compute the pixel color
-    v4f32 fcolor;
+    v4 fcolor;
     v4u8 ucolor;
     cmd->shader(fcolor, &inputs);
-    mr_color_f32_to_u8(ucolor, fcolor);
+    mr_color_real_to_u8(ucolor, fcolor);
     mr_fb_draw_pixel(cmd->fb, pos, ucolor);
 
     // Store the new depth at this position
@@ -84,9 +84,9 @@ mr_result_t mr_draw_triangle(struct mr_triangle_draw_cmd* cmd)
     u16 max = 0;
     for (u8 i = 0; i < 3; i++)
     {
-        v2f32 fpos;
-        v2f32_cpy(fpos, cmd->verts[i]);
-        v2f32_clamp(fpos, -1.0f, 1.0f);
+        v2 fpos;
+        v2_cpy(fpos, cmd->verts[i]);
+        v2_clamp(fpos, REAL(-1), REAL(1));
 
         v2u16 pos;
         mr_fragcoord_to_fbcoord(cmd->fb, pos, fpos);
@@ -103,7 +103,7 @@ mr_result_t mr_draw_triangle(struct mr_triangle_draw_cmd* cmd)
     }
 
     // Draw the outer lines
-    v4f32 verts[3];
+    v4 verts[3];
     struct mr_line_draw_cmd linecmd = {
         .verts = verts,
         .fb = cmd->fb,
@@ -113,8 +113,8 @@ mr_result_t mr_draw_triangle(struct mr_triangle_draw_cmd* cmd)
 
     for (u8 i = 0; i < 3; i++)
     {
-        v4f32_cpy(verts[0], cmd->verts[i]);
-        v4f32_cpy(verts[1], cmd->verts[(i + 1) % 3]);
+        v4_cpy(verts[0], cmd->verts[i]);
+        v4_cpy(verts[1], cmd->verts[(i + 1) % 3]);
         __mr_internal_draw_line(&linecmd, draw_line_pixel_func, cmd);
     }
 
@@ -133,15 +133,15 @@ mr_result_t mr_draw_triangle(struct mr_triangle_draw_cmd* cmd)
 }
 
 void mr_triangle_shader_normalize_barycoord(
-    v3f32 barycoord, const struct mr_triangle_shader_inputs* inputs)
+    v3 barycoord, const struct mr_triangle_shader_inputs* inputs)
 {
-    v3f32 w_vec = {
+    v3 w_vec = {
         inputs->cmd->verts[0][3],  //
         inputs->cmd->verts[1][3],  //
         inputs->cmd->verts[2][3],  //
     };
-    v3f32_mul(barycoord, inputs->barycoord, w_vec);
+    v3_mul(barycoord, inputs->barycoord, w_vec);
 
-    const f32 sum = barycoord[0] + barycoord[1] + barycoord[2];
-    v3f32_muls(barycoord, barycoord, 1.0f / sum);
+    const real sum = real_add(real_add(barycoord[0], barycoord[1]), barycoord[2]);
+    v3_muls(barycoord, barycoord, 1.0f / sum);
 }
