@@ -3,7 +3,6 @@
 
 #include <assert.h>  // IWYU pragma: keep
 
-#include "mr/config.h"
 #include "mr/math/real_math_impl.h"
 #include "mr/math/vec_math_impl.h"
 

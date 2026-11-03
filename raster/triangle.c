@@ -68,6 +68,16 @@ static void draw_line_pixel_func(v2u16 pos, __mr_internal_line_pixel_data* data)
     draw_triangle_pixel(pos, data);
 }
 
+static mr_result_t discard_backfacing(struct mr_triangle_draw_cmd* cmd)
+{
+    v3 a, b;
+    v3_sub(a, cmd->verts[1], cmd->verts[0]);
+    v3_sub(b, cmd->verts[2], cmd->verts[0]);
+
+    const real z = real_sub(real_mul(a[0], b[1]), real_mul(b[0], a[1]));
+    return (real_lt(z, REAL(0))) ? MR_FACING_BACK : MR_OK;
+}
+
 mr_result_t mr_draw_triangle(struct mr_triangle_draw_cmd* cmd)
 {
     // Buffer allocation guard
@@ -78,6 +88,12 @@ mr_result_t mr_draw_triangle(struct mr_triangle_draw_cmd* cmd)
         if (res != MR_OK) return res;
     }
     struct triangle_edges* triedges = s_triange_renderer_store.edge_buff;
+
+    // Discard backfacing triangles
+    if (discard_backfacing(cmd) == MR_FACING_BACK)
+    {
+        return MR_FACING_BACK;
+    }
 
     // Compute the vertical bounds for the triangle
     u16 min = cmd->fb->height - 1;
@@ -144,4 +160,25 @@ void mr_triangle_shader_normalize_barycoord(
 
     const real sum = real_add(real_add(barycoord[0], barycoord[1]), barycoord[2]);
     v3_muls(barycoord, barycoord, 1.0f / sum);
+}
+
+void mr_triangle_shader_interpolate_v2(v2 res, const v2* values, const v3 barycoord)
+{
+    v2_muls(res, values[0], barycoord[0]);
+    v2_madds(res, values[1], barycoord[1], res);
+    v2_madds(res, values[2], barycoord[2], res);
+}
+
+void mr_triangle_shader_interpolate_v3(v3 res, const v3* values, const v3 barycoord)
+{
+    v3_muls(res, values[0], barycoord[0]);
+    v3_madds(res, values[1], barycoord[1], res);
+    v3_madds(res, values[2], barycoord[2], res);
+}
+
+void mr_triangle_shader_interpolate_v4(v4 res, const v4* values, const v3 barycoord)
+{
+    v4_muls(res, values[0], barycoord[0]);
+    v4_madds(res, values[1], barycoord[1], res);
+    v4_madds(res, values[2], barycoord[2], res);
 }

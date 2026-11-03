@@ -105,4 +105,9 @@ mr_result_t mr_draw_triangle(struct mr_triangle_draw_cmd* cmd);
 void mr_triangle_shader_normalize_barycoord(
     v3 barycoord, const struct mr_triangle_shader_inputs* inputs);
 
+// Interpolation
+void mr_triangle_shader_interpolate_v2(v2 res, const v2* values, const v3 barycoord);
+void mr_triangle_shader_interpolate_v3(v3 res, const v3* values, const v3 barycoord);
+void mr_triangle_shader_interpolate_v4(v4 res, const v4* values, const v3 barycoord);
+
 #endif

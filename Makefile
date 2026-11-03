@@ -2,6 +2,13 @@ CC      := cc
 CFLAGS  := -Wall -Wextra -Werror $(shell sdl2-config --cflags) -fPIC
 LDFLAGS := $(shell sdl2-config --libs) -lm
 
+# EXTRA_FLAGS += -DMR_SDL2_MINI
+# EXTRA_FLAGS += -DMR_SDL2_MID
+# EXTRA_FLAGS += -DMR_SDL2_LARGE
+# EXTRA_FLAGS += -DMR_SDL2_HIRES
+
+CFLAGS += $(EXTRA_FLAGS)
+
 # Library code: rasterizer core, kept backend-free.
 LIB_SRCS := $(wildcard raster/*.c)
 # SDL2 platform backend, built into its own shared object.

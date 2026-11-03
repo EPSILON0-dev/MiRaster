@@ -8,6 +8,12 @@
 #include "mr/config.h"
 
 // ----------------------------------------------------------------------
+// A random define that doesn't fit anywhere else
+// ----------------------------------------------------------------------
+
+#define MR_FORCE_STATIC_INLINE __attribute__((always_inline)) static inline
+
+// ----------------------------------------------------------------------
 // Value types
 // ----------------------------------------------------------------------
 
@@ -36,13 +42,15 @@ enum mr_result
     MR_OK = 0,
     MR_ERROR,
     MR_UNIMP,
+    MR_NOMEM,
+    MR_NOWAIT,
     MR_INVALID_FORMAT,
     MR_INVALID_TYPE,
     MR_MODIFIED,
     MR_OUT_OF_RANGE,
+    MR_LOAD_FAILED,
+    MR_FACING_BACK,
     MR_UNREACHABLE,
-    MR_NOMEM,
-    MR_NOWAIT,
 };
 
 typedef int mr_result_t;

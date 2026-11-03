@@ -42,9 +42,7 @@ void triangle_shader(v4 color, const struct mr_triangle_shader_inputs* inputs)
         vertex_color[i][3] = REAL(1);
     }
 
-    v4_muls(color, vertex_color[0], barycoord[0]);
-    v4_madds(color, vertex_color[1], barycoord[1], color);
-    v4_madds(color, vertex_color[2], barycoord[2], color);
+    mr_triangle_shader_interpolate_v4(color, vertex_color, barycoord);
 
     v3_muls(color, color, REAL(0.45f));
     v3_adds(color, color, REAL(0.60f));

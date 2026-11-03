@@ -40,6 +40,7 @@ __real_xform(sqrt, (sqrtf(val)));
 __real_xform(sin, (sinf(val)));
 __real_xform(cos, (cosf(val)));
 __real_xform(tan, (tanf(val)));
+__real_xform(fract, (fabsf(val - truncf(val))));
 
 __real_cmp(lt, <);
 __real_cmp(gt, >);

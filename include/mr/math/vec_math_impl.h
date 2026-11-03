@@ -3,7 +3,6 @@
 
 #include <math.h>  // IWYU pragma: keep
 
-#include "mr/config.h"
 #include "mr/math/real_math_impl.h"
 #include "mr/types.h"
 
@@ -261,9 +260,26 @@
         for (u8 i = 0; i < len; i++)                                          \
         {                                                                     \
             const real t = real_sub(a[i], b[i]);                              \
-            res += real_mul(t, t);                                            \
+            res = real_add(res, real_mul(t, t));                              \
         }                                                                     \
         return real_sqrt(res);                                                \
+    }
+
+#define __real_vec_length(len)                                  \
+    MR_FORCE_STATIC_INLINE real v##len##_length(const v##len a) \
+    {                                                           \
+        real res = REAL(0);                                     \
+        for (u8 i = 0; i < len; i++)                            \
+        {                                                       \
+            res = real_add(res, real_mul(a[i], a[i]));          \
+        }                                                       \
+        return real_sqrt(res);                                  \
+    }
+
+#define __real_vec_normalize(len)                              \
+    MR_FORCE_STATIC_INLINE void v##len##_normalize(v##len vec) \
+    {                                                          \
+        v##len##_divs(vec, vec, v##len##_length(vec));         \
     }
 
 // ----------------------------------------------------------------------
@@ -296,6 +312,7 @@
     __real_vec_scal_op_impl(mul, len);     \
     __real_vec_scal_op_impl(div, len);     \
     __real_vec_inplace_op_impl(abs, len);  \
+    __real_vec_inplace_op_impl(inv, len);  \
     __real_vec_inplace_op_impl(sign, len); \
     __real_vec_madd(len);                  \
     __real_vec_madds(len);                 \
@@ -306,7 +323,9 @@
     __real_vec_zeros(len);                 \
     __real_vec_ones(len);                  \
     __real_vec_clamp(len);                 \
-    __real_vec_dist(len);
+    __real_vec_dist(len);                  \
+    __real_vec_length(len);                \
+    __real_vec_normalize(len);
 
 // ----------------------------------------------------------------------
 // Per type groups
@@ -346,5 +365,16 @@ __vec_typedef(__vec_uint_type_define_impl, u32);
 __real_vec_impl(2);
 __real_vec_impl(3);
 __real_vec_impl(4);
+
+// ----------------------------------------------------------------------
+// Specific functions
+// ----------------------------------------------------------------------
+
+MR_FORCE_STATIC_INLINE void v3_cross(v3 res, const v3 a, const v3 b)
+{
+    res[0] = real_sub(real_mul(a[1], b[2]), real_mul(a[2], b[1]));
+    res[1] = real_sub(real_mul(a[2], b[0]), real_mul(a[0], b[2]));
+    res[2] = real_sub(real_mul(a[0], b[1]), real_mul(a[1], b[0]));
+}
 
 #endif
