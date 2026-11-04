@@ -1,6 +1,5 @@
 #include "mr/model.h"
 
-#include "mr/config.h"
 #include "mr/math.h"  // IWYU pragma: keep
 #include "mr/matrix.h"
 #include "mr/render.h"
@@ -23,13 +22,10 @@ void mr_model_matrix(mat4 matrix, const struct mr_model* model)
     mat4_mulmat(matrix, temp0, scale);
 }
 
-MR_FORCE_STATIC_INLINE void mr_model_transform_vertex(
-    v4 outvert, const struct mr_model* model, const mat4 mvp, u32 vertindex)
+MR_INLINE void mr_model_transform_vertex(v4 outvert, const mat4 mvp, const void* invert)
 {
     v4 vert;
-    const u32 stride = (model->mesh.stride / sizeof(real));
-    const u32 index = (u32)(model->mesh.indices[vertindex]) * stride;
-    v3_cpy(vert, &model->mesh.vertices[index]);
+    v3_cpy(vert, invert);
     vert[3] = 1.0f;
 
     mat4_mulvec(outvert, mvp, vert);
@@ -38,7 +34,7 @@ MR_FORCE_STATIC_INLINE void mr_model_transform_vertex(
     v4_divs(outvert, outvert, real_abs(w));
 }
 
-MR_FORCE_STATIC_INLINE mr_result_t mr_model_draw_lines(
+MR_INLINE mr_result_t mr_model_draw_lines(
     struct mr_fb_desc* fb, const struct mr_model* model, const mat4 mvp)
 {
     v4 line[2];
@@ -51,33 +47,38 @@ MR_FORCE_STATIC_INLINE mr_result_t mr_model_draw_lines(
 
     for (size_t i = 0; i < model->mesh.num_indices; i += 2)
     {
-        mr_model_transform_vertex(line[0], model, mvp, (i + 0));
-        mr_model_transform_vertex(line[1], model, mvp, (i + 1));
+        for (u8 j = 0; j < 2; j++)
+        {
+            const size_t offset = (model->mesh.indices[i + j] * model->mesh.stride);
+            const void* ptr = (u8*)model->mesh.vertices + offset;
+            mr_model_transform_vertex(line[j], mvp, ptr);
+        }
         mr_draw_line(&cmd);
     }
 
     return MR_OK;
 }
 
-MR_FORCE_STATIC_INLINE mr_result_t mr_model_draw_triangles(
+MR_INLINE mr_result_t mr_model_draw_triangles(
     struct mr_fb_desc* fb, const struct mr_model* model, const mat4 mvp)
 {
     v4 tri[3];
     struct mr_triangle_draw_cmd cmd = {
         .fb = fb,
         .verts = tri,
-        .inds = NULL,
-        .stride = model->mesh.stride,
         .shader = model->shader_func,
         .data = model->shader_data,
     };
 
     for (size_t i = 0; i < model->mesh.num_indices; i += 3)
     {
-        cmd.inds = &model->mesh.indices[i];
-        mr_model_transform_vertex(tri[0], model, mvp, (i + 0));
-        mr_model_transform_vertex(tri[1], model, mvp, (i + 1));
-        mr_model_transform_vertex(tri[2], model, mvp, (i + 2));
+        for (u8 j = 0; j < 3; j++)
+        {
+            const size_t offset = (model->mesh.indices[i + j] * model->mesh.stride);
+            const void* ptr = (u8*)model->mesh.vertices + offset;
+            cmd.vert_ptrs[j] = ptr;
+            mr_model_transform_vertex(tri[j], mvp, ptr);
+        }
         mr_draw_triangle(&cmd);
     }
 

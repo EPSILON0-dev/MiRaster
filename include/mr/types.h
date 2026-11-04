@@ -11,7 +11,7 @@
 // A random define that doesn't fit anywhere else
 // ----------------------------------------------------------------------
 
-#define MR_FORCE_STATIC_INLINE __attribute__((always_inline)) static inline
+#define MR_INLINE __attribute__((always_inline)) static inline
 
 // ----------------------------------------------------------------------
 // Value types

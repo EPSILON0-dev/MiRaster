@@ -11,19 +11,19 @@
 #define REAL(x) ((float)x)
 
 #define __real_op_impl(name, operator)                                  \
-    MR_FORCE_STATIC_INLINE real real_##name(const real a, const real b) \
+    MR_INLINE real real_##name(const real a, const real b) \
     {                                                                   \
         return a operator b;                                            \
     }
 
 #define __real_xform(name, xform)                     \
-    MR_FORCE_STATIC_INLINE real real_##name(real val) \
+    MR_INLINE real real_##name(real val) \
     {                                                 \
         return xform;                                 \
     }
 
 #define __real_cmp(name, operator)                              \
-    MR_FORCE_STATIC_INLINE bool real_##name(real lhs, real rhs) \
+    MR_INLINE bool real_##name(real lhs, real rhs) \
     {                                                           \
         return lhs operator rhs;                                \
     }
@@ -49,32 +49,32 @@ __real_cmp(ge, >=);
 __real_cmp(ne, !=);
 __real_cmp(eq, ==);
 
-MR_FORCE_STATIC_INLINE real real_clamp(real val, real min, real max)
+MR_INLINE real real_clamp(real val, real min, real max)
 {
     return (val < min) ? min : (val > max) ? max : val;
 }
 
-MR_FORCE_STATIC_INLINE real real_min(real a, real b)
+MR_INLINE real real_min(real a, real b)
 {
     return a < b ? a : b;
 }
 
-MR_FORCE_STATIC_INLINE real real_max(real a, real b)
+MR_INLINE real real_max(real a, real b)
 {
     return a > b ? a : b;
 }
 
-MR_FORCE_STATIC_INLINE bool real_is_zero(real val)
+MR_INLINE bool real_is_zero(real val)
 {
     return !val;
 }
 
-MR_FORCE_STATIC_INLINE bool real_is_non_zero(real val)
+MR_INLINE bool real_is_non_zero(real val)
 {
     return !!val;
 }
 
-MR_FORCE_STATIC_INLINE void mr_color_real_to_u8(v4u8 out, v4 in)
+MR_INLINE void mr_color_real_to_u8(v4u8 out, v4 in)
 {
     for (u8 i = 0; i < 4; i++)
     {
@@ -82,7 +82,7 @@ MR_FORCE_STATIC_INLINE void mr_color_real_to_u8(v4u8 out, v4 in)
     }
 }
 
-MR_FORCE_STATIC_INLINE void mr_color_u8_to_real(v4 out, v4u8 in)
+MR_INLINE void mr_color_u8_to_real(v4 out, v4u8 in)
 {
     for (u8 i = 0; i < 4; i++)
     {

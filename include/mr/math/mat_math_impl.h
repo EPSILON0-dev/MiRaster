@@ -11,7 +11,7 @@
 // ----------------------------------------------------------------------
 
 #define __mat_op_mulvec(size)                                             \
-    MR_FORCE_STATIC_INLINE void mat##size##_mulvec(                       \
+    MR_INLINE void mat##size##_mulvec(                       \
         v##size res, const mat##size mat, const v##size vec)              \
     {                                                                     \
         v##size tmp;                                                      \
@@ -28,7 +28,7 @@
     }
 
 #define __mat_op_mulmat(size)                                    \
-    MR_FORCE_STATIC_INLINE void mat##size##_mulmat(              \
+    MR_INLINE void mat##size##_mulmat(              \
         mat##size res, const mat##size a, const mat##size b)     \
     {                                                            \
         for (u8 i = 0; i < size; i++)                            \
@@ -38,7 +38,7 @@
     }
 
 #define __mat_op_transpose(size)                                                         \
-    MR_FORCE_STATIC_INLINE void mat##size##_transpose(mat##size out, const mat##size in) \
+    MR_INLINE void mat##size##_transpose(mat##size out, const mat##size in) \
     {                                                                                    \
         assert(in != out);                                                               \
         for (u8 i = 0; i < size; i++)                                                    \
@@ -51,7 +51,7 @@
     }
 
 #define __mat_op_cpy(size)                                                         \
-    MR_FORCE_STATIC_INLINE void mat##size##_cpy(mat##size out, const mat##size in) \
+    MR_INLINE void mat##size##_cpy(mat##size out, const mat##size in) \
     {                                                                              \
         assert(in != out);                                                         \
         for (u8 i = 0; i < size * size; i++)                                       \

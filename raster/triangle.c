@@ -18,7 +18,7 @@ static struct
     u16 fb_height;
 } s_triange_renderer_store;
 
-MR_FORCE_STATIC_INLINE mr_result_t allocate_edge_buff(struct mr_fb_desc* fb)
+MR_INLINE mr_result_t allocate_edge_buff(struct mr_fb_desc* fb)
 {
     if (s_triange_renderer_store.edge_buff)
     {
@@ -146,39 +146,4 @@ mr_result_t mr_draw_triangle(struct mr_triangle_draw_cmd* cmd)
     }
 
     return MR_OK;
-}
-
-void mr_triangle_shader_normalize_barycoord(
-    v3 barycoord, const struct mr_triangle_shader_inputs* inputs)
-{
-    v3 w_vec = {
-        inputs->cmd->verts[0][3],  //
-        inputs->cmd->verts[1][3],  //
-        inputs->cmd->verts[2][3],  //
-    };
-    v3_mul(barycoord, inputs->barycoord, w_vec);
-
-    const real sum = real_add(real_add(barycoord[0], barycoord[1]), barycoord[2]);
-    v3_muls(barycoord, barycoord, 1.0f / sum);
-}
-
-void mr_triangle_shader_interpolate_v2(v2 res, const v2* values, const v3 barycoord)
-{
-    v2_muls(res, values[0], barycoord[0]);
-    v2_madds(res, values[1], barycoord[1], res);
-    v2_madds(res, values[2], barycoord[2], res);
-}
-
-void mr_triangle_shader_interpolate_v3(v3 res, const v3* values, const v3 barycoord)
-{
-    v3_muls(res, values[0], barycoord[0]);
-    v3_madds(res, values[1], barycoord[1], res);
-    v3_madds(res, values[2], barycoord[2], res);
-}
-
-void mr_triangle_shader_interpolate_v4(v4 res, const v4* values, const v3 barycoord)
-{
-    v4_muls(res, values[0], barycoord[0]);
-    v4_madds(res, values[1], barycoord[1], res);
-    v4_madds(res, values[2], barycoord[2], res);
 }

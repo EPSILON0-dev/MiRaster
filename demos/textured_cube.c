@@ -4,88 +4,49 @@
 #include "mr/math.h"
 #include "mr/model.h"
 #include "mr/render.h"
+#include "mr/shader.h"
 #include "mr/texture.h"
 #include "mr/types.h"
 
 #define DEGREES_PER_FRAME REAL(100.0f / 30.0f)
 
-// clang-format off
-v3 cubeverts[] =
+#define R(x) REAL(x)
+
+struct vertex
 {
-    // -Z
-    { REAL(-1), REAL(-1), REAL(-1) },
-    { REAL( 1), REAL(-1), REAL(-1) },
-    { REAL(-1), REAL( 1), REAL(-1) },
-    { REAL( 1), REAL( 1), REAL(-1) },
-
-    // +Z
-    { REAL(-1), REAL(-1), REAL( 1) },
-    { REAL( 1), REAL(-1), REAL( 1) },
-    { REAL(-1), REAL( 1), REAL( 1) },
-    { REAL( 1), REAL( 1), REAL( 1) },
-
-    // -Y
-    { REAL(-1), REAL(-1), REAL(-1) },
-    { REAL( 1), REAL(-1), REAL(-1) },
-    { REAL(-1), REAL(-1), REAL( 1) },
-    { REAL( 1), REAL(-1), REAL( 1) },
-
-    // +Y
-    { REAL(-1), REAL( 1), REAL(-1) },
-    { REAL( 1), REAL( 1), REAL(-1) },
-    { REAL(-1), REAL( 1), REAL( 1) },
-    { REAL( 1), REAL( 1), REAL( 1) },
-
-    // -X
-    { REAL(-1), REAL(-1), REAL(-1) },
-    { REAL(-1), REAL(-1), REAL( 1) },
-    { REAL(-1), REAL( 1), REAL(-1) },
-    { REAL(-1), REAL( 1), REAL( 1) },
-
-    // +X
-    { REAL( 1), REAL(-1), REAL(-1) },
-    { REAL( 1), REAL(-1), REAL( 1) },
-    { REAL( 1), REAL( 1), REAL(-1) },
-    { REAL( 1), REAL( 1), REAL( 1) },
+    v3 pos;
+    v3 norm;
+    v2 uv;
 };
 
-v2 cubeuvs[] =
+// clang-format off
+static const struct vertex cubeverts[] =
 {
-    // -Z
-    { REAL(0), REAL(0) },
-    { REAL(1), REAL(0) },
-    { REAL(0), REAL(1) },
-    { REAL(1), REAL(1) },
-
-    // +Z
-    { REAL(0), REAL(0) },
-    { REAL(1), REAL(0) },
-    { REAL(0), REAL(1) },
-    { REAL(1), REAL(1) },
-
-    // -Y
-    { REAL(0), REAL(0) },
-    { REAL(1), REAL(0) },
-    { REAL(0), REAL(1) },
-    { REAL(1), REAL(1) },
-
-    // +Y
-    { REAL(0), REAL(0) },
-    { REAL(1), REAL(0) },
-    { REAL(0), REAL(1) },
-    { REAL(1), REAL(1) },
-
-    // -X
-    { REAL(0), REAL(0) },
-    { REAL(1), REAL(0) },
-    { REAL(0), REAL(1) },
-    { REAL(1), REAL(1) },
-
-    // +X
-    { REAL(0), REAL(0) },
-    { REAL(1), REAL(0) },
-    { REAL(0), REAL(1) },
-    { REAL(1), REAL(1) },
+      //    Position     //   //     Normal      //   //   UV   //
+    { {R(-1), R(-1), R(-1)},  {R( 1), R( 1), R(-1)},  {R(0), R(0)} }, // -Z
+    { {R( 1), R(-1), R(-1)},  {R( 1), R( 1), R(-1)},  {R(1), R(0)} }, //
+    { {R(-1), R( 1), R(-1)},  {R( 1), R( 1), R(-1)},  {R(0), R(1)} }, //
+    { {R( 1), R( 1), R(-1)},  {R( 1), R( 1), R(-1)},  {R(1), R(1)} }, //
+    { {R(-1), R(-1), R( 1)},  {R( 1), R( 1), R( 1)},  {R(0), R(0)} }, // +Z
+    { {R( 1), R(-1), R( 1)},  {R( 1), R( 1), R( 1)},  {R(1), R(0)} }, //
+    { {R(-1), R( 1), R( 1)},  {R( 1), R( 1), R( 1)},  {R(0), R(1)} }, //
+    { {R( 1), R( 1), R( 1)},  {R( 1), R( 1), R( 1)},  {R(1), R(1)} }, //
+    { {R(-1), R(-1), R(-1)},  {R( 1), R(-1), R( 1)},  {R(0), R(0)} }, // -Y
+    { {R( 1), R(-1), R(-1)},  {R( 1), R(-1), R( 1)},  {R(1), R(0)} }, //
+    { {R(-1), R(-1), R( 1)},  {R( 1), R(-1), R( 1)},  {R(0), R(1)} }, //
+    { {R( 1), R(-1), R( 1)},  {R( 1), R(-1), R( 1)},  {R(1), R(1)} }, //
+    { {R(-1), R( 1), R(-1)},  {R( 1), R( 1), R( 1)},  {R(0), R(0)} }, // +Y
+    { {R( 1), R( 1), R(-1)},  {R( 1), R( 1), R( 1)},  {R(1), R(0)} }, //
+    { {R(-1), R( 1), R( 1)},  {R( 1), R( 1), R( 1)},  {R(0), R(1)} }, //
+    { {R( 1), R( 1), R( 1)},  {R( 1), R( 1), R( 1)},  {R(1), R(1)} }, //
+    { {R(-1), R(-1), R(-1)},  {R(-1), R( 1), R( 1)},  {R(0), R(0)} }, // -X
+    { {R(-1), R(-1), R( 1)},  {R(-1), R( 1), R( 1)},  {R(1), R(0)} }, //
+    { {R(-1), R( 1), R(-1)},  {R(-1), R( 1), R( 1)},  {R(0), R(1)} }, //
+    { {R(-1), R( 1), R( 1)},  {R(-1), R( 1), R( 1)},  {R(1), R(1)} }, //
+    { {R( 1), R(-1), R(-1)},  {R( 1), R( 1), R( 1)},  {R(0), R(0)} }, // +X
+    { {R( 1), R(-1), R( 1)},  {R( 1), R( 1), R( 1)},  {R(1), R(0)} }, //
+    { {R( 1), R( 1), R(-1)},  {R( 1), R( 1), R( 1)},  {R(0), R(1)} }, //
+    { {R( 1), R( 1), R( 1)},  {R( 1), R( 1), R( 1)},  {R(1), R(1)} }, //
 };
 
 u16 cubeinds[] =
@@ -105,43 +66,16 @@ struct texture
     u8* pixels;
 };
 
-struct cube_shader_data_struct
-{
-    const v3* normals;
-    const v2* uvs;
-    mat4 model_matrix;
-};
-
-struct cube_shader_data_struct cube_shader_data = {
-    .uvs = cubeuvs,
-};
-
 static struct mr_texture s_tex_albedo;
 static struct mr_texture s_tex_normal;
 
 void cube_shader(v4 color, const struct mr_triangle_shader_inputs* inputs)
 {
-    v3 barycoord;
-    mr_triangle_shader_normalize_barycoord(barycoord, inputs);
+    static struct vertex vert;
+    mr_shader_point_data(&vert, inputs, 8);
 
-    struct cube_shader_data_struct* data = inputs->cmd->data;
-
-    // Copy the vertex parameters
-    v2 uvs[3];
-    for (u8 i = 0; i < 3; i++)
-    {
-        v2_cpy(uvs[i], ((v2*)data->uvs)[inputs->cmd->inds[i]]);
-    }
-
-    // Compute the UV
-    v2 uv;
-    mr_triangle_shader_interpolate_v2(uv, uvs, barycoord);
-
-    // Sample the textures
     v4u8 ucolor;
-    mr_tex_sample_nearest(ucolor, uv, &s_tex_albedo);
-
-    // Compute the float values
+    mr_tex_sample_nearest(ucolor, vert.uv, &s_tex_albedo);
     mr_color_u8_to_real(color, ucolor);
 }
 
@@ -157,7 +91,7 @@ static struct mr_model s_cube = {
         {
             .vertices = (real*)cubeverts,
             .indices = (u16*)cubeinds,
-            .stride = sizeof(v3),
+            .stride = sizeof(struct vertex),
             .num_indices = sizeof(cubeinds) / sizeof(*cubeinds),
             .type = MR_MODEL_TRIANGLES,
         },
@@ -167,7 +101,6 @@ static struct mr_model s_cube = {
     .scale = {REAL(0.9f), REAL(0.9f), REAL(0.9f)},
 
     .shader_func = cube_shader,
-    .shader_data = &cube_shader_data,
 };
 
 static struct mr_model s_ground = {
@@ -175,7 +108,7 @@ static struct mr_model s_ground = {
         {
             .vertices = (real*)cubeverts,
             .indices = &((u16*)(cubeinds))[3 * 6],  // 4th face is the top face
-            .stride = sizeof(v3),
+            .stride = sizeof(struct vertex),
             .num_indices = 6,
             .type = MR_MODEL_TRIANGLES,
         },
@@ -220,7 +153,7 @@ void render_loop(struct mr_fb_desc* fb, u32 frame)
     mat4 vp;
     mr_camera_vp_matrix(vp, &s_camera);
     s_cube.rotation[1] = real_mul(int2real(frame), MR_DEG2RAD(DEGREES_PER_FRAME));
-    mr_model_matrix(cube_shader_data.model_matrix, &s_cube);
+    // mr_model_matrix(cube_shader_data.model_matrix, &s_cube);
 
     mr_model_draw(fb, &s_cube, vp);
     mr_model_draw(fb, &s_ground, vp);

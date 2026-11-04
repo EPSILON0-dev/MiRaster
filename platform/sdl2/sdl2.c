@@ -3,7 +3,7 @@
 #include <unistd.h>
 
 #include "mr/fb.h"
-#include "mr/math.h" // IWYU pragma: keep
+#include "mr/math.h"  // IWYU pragma: keep
 #include "mr/types.h"
 #include "platform/sdl2/config.h"
 

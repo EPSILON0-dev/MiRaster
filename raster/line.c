@@ -8,7 +8,7 @@
 // Bresenham's Line Algorithm
 // https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
 
-MR_FORCE_STATIC_INLINE void draw_shaded_pixel(struct mr_line_draw_cmd* cmd, v2u16 pos)
+MR_INLINE void draw_shaded_pixel(struct mr_line_draw_cmd* cmd, v2u16 pos)
 {
     v4 fcolor;
     v4u8 ucolor;
@@ -91,7 +91,7 @@ void __mr_internal_draw_line_high(
     }
 }
 
-MR_FORCE_STATIC_INLINE void swap_screencoord_verts(v4u16 verts)
+MR_INLINE void swap_screencoord_verts(v4u16 verts)
 {
     const u16 tx = verts[0];
     verts[0] = verts[2];
@@ -119,7 +119,7 @@ void __mr_internal_draw_line_resolved(
     }
 }
 
-MR_FORCE_STATIC_INLINE mr_result_t mr_clamp_line_to_front(v4 p0, v4 p1)
+MR_INLINE mr_result_t mr_clamp_line_to_front(v4 p0, v4 p1)
 {
     if (real_ge(p0[2], REAL(0)) && real_ge(p1[2], REAL(0)))
     {
@@ -152,7 +152,7 @@ MR_FORCE_STATIC_INLINE mr_result_t mr_clamp_line_to_front(v4 p0, v4 p1)
     return MR_MODIFIED;
 }
 
-MR_FORCE_STATIC_INLINE mr_result_t mr_clamp_line_to_screen(v2 p0, v2 p1)
+MR_INLINE mr_result_t mr_clamp_line_to_screen(v2 p0, v2 p1)
 {
     real t_min = REAL(0);
     real t_max = REAL(1);

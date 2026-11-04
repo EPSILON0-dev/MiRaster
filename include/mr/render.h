@@ -91,23 +91,13 @@ struct mr_triangle_shader_inputs
 struct mr_triangle_draw_cmd
 {
     struct mr_fb_desc* fb;
-    const v4* verts;
-    const u16* inds;
-    u16 stride;
+    const v4 *verts;
+    const real* vert_ptrs[3];
     mr_triangle_shader_func shader;
     mr_shader_data* data;
 };
 
 // We do depth testing and all the fun for all triangles
 mr_result_t mr_draw_triangle(struct mr_triangle_draw_cmd* cmd);
-
-// I feel like every shader will end up using this...
-void mr_triangle_shader_normalize_barycoord(
-    v3 barycoord, const struct mr_triangle_shader_inputs* inputs);
-
-// Interpolation
-void mr_triangle_shader_interpolate_v2(v2 res, const v2* values, const v3 barycoord);
-void mr_triangle_shader_interpolate_v3(v3 res, const v3* values, const v3 barycoord);
-void mr_triangle_shader_interpolate_v4(v4 res, const v4* values, const v3 barycoord);
 
 #endif

@@ -21,7 +21,7 @@ struct mr_fb_desc
     void* depth;
 };
 
-MR_FORCE_STATIC_INLINE mr_result_t mr_fb_draw_pixel(struct mr_fb_desc* fb, v2u16 pos, v4u8 color)
+MR_INLINE mr_result_t mr_fb_draw_pixel(struct mr_fb_desc* fb, v2u16 pos, v4u8 color)
 {
     if (pos[0] >= fb->width || pos[1] >= fb->height)
     {
@@ -34,7 +34,7 @@ MR_FORCE_STATIC_INLINE mr_result_t mr_fb_draw_pixel(struct mr_fb_desc* fb, v2u16
     return MR_OK;
 }
 
-MR_FORCE_STATIC_INLINE mr_result_t mr_fb_draw_depth(struct mr_fb_desc* fb, v2u16 pos, real depth)
+MR_INLINE mr_result_t mr_fb_draw_depth(struct mr_fb_desc* fb, v2u16 pos, real depth)
 {
     if (pos[0] >= fb->width || pos[1] >= fb->height)
     {
@@ -47,7 +47,7 @@ MR_FORCE_STATIC_INLINE mr_result_t mr_fb_draw_depth(struct mr_fb_desc* fb, v2u16
     return MR_OK;
 }
 
-MR_FORCE_STATIC_INLINE real mr_fb_get_depth(struct mr_fb_desc* fb, v2u16 pos)
+MR_INLINE real mr_fb_get_depth(struct mr_fb_desc* fb, v2u16 pos)
 {
     if (pos[0] >= fb->width || pos[1] >= fb->height)
     {

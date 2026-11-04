@@ -31,12 +31,12 @@
 
 #if defined(MR_REAL_MODE_FLOATING_POINT)
 
-MR_FORCE_STATIC_INLINE real int2real(i32 val)
+MR_INLINE real int2real(i32 val)
 {
     return (real)val;
 }
 
-MR_FORCE_STATIC_INLINE real real2int(real val)
+MR_INLINE real real2int(real val)
 {
     return (i32)val;
 }

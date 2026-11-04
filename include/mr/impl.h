@@ -8,6 +8,7 @@
 #include "../../raster/line.c"
 #include "../../raster/matrix.c"
 #include "../../raster/model.c"
+#include "../../raster/shader.c"
 #include "../../raster/triangle.c"
 #include "../../raster/texture.c"
 #endif

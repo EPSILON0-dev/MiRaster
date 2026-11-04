@@ -11,7 +11,7 @@
 // ----------------------------------------------------------------------
 
 #define __vec_vec_op_impl(name, operator, base, len)                                           \
-    MR_FORCE_STATIC_INLINE void __vec_v_opname(name, base, len)(__vec_typename(base, len) res, \
+    MR_INLINE void __vec_v_opname(name, base, len)(__vec_typename(base, len) res, \
         const __vec_typename(base, len) a, const __vec_typename(base, len) b)                  \
     {                                                                                          \
         for (u8 i = 0; i < len; i++)                                                           \
@@ -21,7 +21,7 @@
     }
 
 #define __vec_scal_op_impl(name, operator, base, len)                                   \
-    MR_FORCE_STATIC_INLINE void __vec_s_opname(name, base, len)(                        \
+    MR_INLINE void __vec_s_opname(name, base, len)(                        \
         __vec_typename(base, len) res, const __vec_typename(base, len) a, const base b) \
     {                                                                                   \
         for (u8 i = 0; i < len; i++)                                                    \
@@ -31,7 +31,7 @@
     }
 
 #define __vec_clamp(base, len)                                             \
-    MR_FORCE_STATIC_INLINE void v##len##base##_clamp(                      \
+    MR_INLINE void v##len##base##_clamp(                      \
         __vec_typename(base, len) val, const base min, const base max)     \
     {                                                                      \
         for (u8 i = 0; i < len; i++)                                       \
@@ -41,7 +41,7 @@
     }
 
 #define __vec_cpy(base, len)                                                \
-    MR_FORCE_STATIC_INLINE void v##len##base##_cpy(                         \
+    MR_INLINE void v##len##base##_cpy(                         \
         __vec_typename(base, len) dst, const __vec_typename(base, len) src) \
     {                                                                       \
         for (u8 i = 0; i < len; i++)                                        \
@@ -51,7 +51,7 @@
     }
 
 #define __vec_madd(base, len)                                                      \
-    MR_FORCE_STATIC_INLINE void v##len##base##_madd(__vec_typename(base, len) res, \
+    MR_INLINE void v##len##base##_madd(__vec_typename(base, len) res, \
         const __vec_typename(base, len) a, const __vec_typename(base, len) b,      \
         const __vec_typename(base, len) add)                                       \
     {                                                                              \
@@ -62,7 +62,7 @@
     }
 
 #define __vec_madds(base, len)                                                          \
-    MR_FORCE_STATIC_INLINE void v##len##base##_madds(__vec_typename(base, len) res,     \
+    MR_INLINE void v##len##base##_madds(__vec_typename(base, len) res,     \
         const __vec_typename(base, len) a, base b, const __vec_typename(base, len) add) \
     {                                                                                   \
         for (u8 i = 0; i < len; i++)                                                    \
@@ -72,7 +72,7 @@
     }
 
 #define __vec_maddss(base, len)                                                             \
-    MR_FORCE_STATIC_INLINE void v##len##base##_maddss(                                      \
+    MR_INLINE void v##len##base##_maddss(                                      \
         __vec_typename(base, len) res, const __vec_typename(base, len) a, base b, base add) \
     {                                                                                       \
         for (u8 i = 0; i < len; i++)                                                        \
@@ -82,7 +82,7 @@
     }
 
 #define __vec_abs(base, len)                                                      \
-    MR_FORCE_STATIC_INLINE void v##len##base##_abs(__vec_typename(base, len) vec) \
+    MR_INLINE void v##len##base##_abs(__vec_typename(base, len) vec) \
     {                                                                             \
         for (u8 i = 0; i < len; i++)                                              \
         {                                                                         \
@@ -91,7 +91,7 @@
     }
 
 #define __vec_sign(base, len)                                                      \
-    MR_FORCE_STATIC_INLINE void v##len##base##_sign(__vec_typename(base, len) vec) \
+    MR_INLINE void v##len##base##_sign(__vec_typename(base, len) vec) \
     {                                                                              \
         for (u8 i = 0; i < len; i++)                                               \
         {                                                                          \
@@ -100,7 +100,7 @@
     }
 
 #define __vec_min(base, len)                                                      \
-    MR_FORCE_STATIC_INLINE void v##len##base##_min(__vec_typename(base, len) res, \
+    MR_INLINE void v##len##base##_min(__vec_typename(base, len) res, \
         const __vec_typename(base, len) a, const __vec_typename(base, len) b)     \
     {                                                                             \
         for (u8 i = 0; i < len; i++)                                              \
@@ -110,7 +110,7 @@
     }
 
 #define __vec_max(base, len)                                                      \
-    MR_FORCE_STATIC_INLINE void v##len##base##_max(__vec_typename(base, len) res, \
+    MR_INLINE void v##len##base##_max(__vec_typename(base, len) res, \
         const __vec_typename(base, len) a, const __vec_typename(base, len) b)     \
     {                                                                             \
         for (u8 i = 0; i < len; i++)                                              \
@@ -120,7 +120,7 @@
     }
 
 #define __vec_zeros(base, len)                                                      \
-    MR_FORCE_STATIC_INLINE void v##len##base##_zeros(__vec_typename(base, len) vec) \
+    MR_INLINE void v##len##base##_zeros(__vec_typename(base, len) vec) \
     {                                                                               \
         for (u8 i = 0; i < len; i++)                                                \
         {                                                                           \
@@ -129,7 +129,7 @@
     }
 
 #define __vec_ones(base, len)                                                      \
-    MR_FORCE_STATIC_INLINE void v##len##base##_ones(__vec_typename(base, len) vec) \
+    MR_INLINE void v##len##base##_ones(__vec_typename(base, len) vec) \
     {                                                                              \
         for (u8 i = 0; i < len; i++)                                               \
         {                                                                          \
@@ -142,7 +142,7 @@
 // ----------------------------------------------------------------------
 
 #define __real_vec_vec_op_impl(func, len)                                                   \
-    MR_FORCE_STATIC_INLINE void v##len##_##func(v##len res, const v##len a, const v##len b) \
+    MR_INLINE void v##len##_##func(v##len res, const v##len a, const v##len b) \
     {                                                                                       \
         for (u8 i = 0; i < len; i++)                                                        \
         {                                                                                   \
@@ -151,7 +151,7 @@
     }
 
 #define __real_vec_scal_op_impl(func, len)                                             \
-    MR_FORCE_STATIC_INLINE void v##len##_##func##s(v##len res, const v##len a, real b) \
+    MR_INLINE void v##len##_##func##s(v##len res, const v##len a, real b) \
     {                                                                                  \
         for (u8 i = 0; i < len; i++)                                                   \
         {                                                                              \
@@ -160,7 +160,7 @@
     }
 
 #define __real_vec_inplace_op_impl(func, len)               \
-    MR_FORCE_STATIC_INLINE void v##len##_##func(v##len vec) \
+    MR_INLINE void v##len##_##func(v##len vec) \
     {                                                       \
         for (u8 i = 0; i < len; i++)                        \
         {                                                   \
@@ -169,7 +169,7 @@
     }
 
 #define __real_vec_madd(len)                                          \
-    MR_FORCE_STATIC_INLINE void v##len##_madd(                        \
+    MR_INLINE void v##len##_madd(                        \
         v##len res, const v##len a, const v##len b, const v##len add) \
     {                                                                 \
         for (u8 i = 0; i < len; i++)                                  \
@@ -179,7 +179,7 @@
     }
 
 #define __real_vec_madds(len)                                 \
-    MR_FORCE_STATIC_INLINE void v##len##_madds(               \
+    MR_INLINE void v##len##_madds(               \
         v##len res, const v##len a, real b, const v##len add) \
     {                                                         \
         for (u8 i = 0; i < len; i++)                          \
@@ -189,7 +189,7 @@
     }
 
 #define __real_vec_maddss(len)                                                                \
-    MR_FORCE_STATIC_INLINE void v##len##_maddss(v##len res, const v##len a, real b, real add) \
+    MR_INLINE void v##len##_maddss(v##len res, const v##len a, real b, real add) \
     {                                                                                         \
         for (u8 i = 0; i < len; i++)                                                          \
         {                                                                                     \
@@ -198,7 +198,7 @@
     }
 
 #define __real_vec_cpy(len)                                               \
-    MR_FORCE_STATIC_INLINE void v##len##_cpy(v##len out, const v##len in) \
+    MR_INLINE void v##len##_cpy(v##len out, const v##len in) \
     {                                                                     \
         for (u8 i = 0; i < len; i++)                                      \
         {                                                                 \
@@ -207,7 +207,7 @@
     }
 
 #define __real_vec_dot(len)                                                  \
-    MR_FORCE_STATIC_INLINE real v##len##_dot(const v##len a, const v##len b) \
+    MR_INLINE real v##len##_dot(const v##len a, const v##len b) \
     {                                                                        \
         real res = REAL(0);                                                  \
         for (u8 i = 0; i < len; i++)                                         \
@@ -218,7 +218,7 @@
     }
 
 #define __real_vec_lerp(len)                                                                      \
-    MR_FORCE_STATIC_INLINE void v##len##_lerp(v##len res, const v##len a, const v##len b, real f) \
+    MR_INLINE void v##len##_lerp(v##len res, const v##len a, const v##len b, real f) \
     {                                                                                             \
         for (u8 i = 0; i < len; i++)                                                              \
         {                                                                                         \
@@ -227,7 +227,7 @@
     }
 
 #define __real_vec_zeros(len)                              \
-    MR_FORCE_STATIC_INLINE void v##len##_zeros(v##len out) \
+    MR_INLINE void v##len##_zeros(v##len out) \
     {                                                      \
         for (u8 i = 0; i < len; i++)                       \
         {                                                  \
@@ -236,7 +236,7 @@
     }
 
 #define __real_vec_ones(len)                              \
-    MR_FORCE_STATIC_INLINE void v##len##_ones(v##len out) \
+    MR_INLINE void v##len##_ones(v##len out) \
     {                                                     \
         for (u8 i = 0; i < len; i++)                      \
         {                                                 \
@@ -245,7 +245,7 @@
     }
 
 #define __real_vec_clamp(len)                                                  \
-    MR_FORCE_STATIC_INLINE void v##len##_clamp(v##len vec, real min, real max) \
+    MR_INLINE void v##len##_clamp(v##len vec, real min, real max) \
     {                                                                          \
         for (u8 i = 0; i < len; i++)                                           \
         {                                                                      \
@@ -254,7 +254,7 @@
     }
 
 #define __real_vec_dist(len)                                                  \
-    MR_FORCE_STATIC_INLINE real v##len##_dist(const v##len a, const v##len b) \
+    MR_INLINE real v##len##_dist(const v##len a, const v##len b) \
     {                                                                         \
         real res = REAL(0);                                                   \
         for (u8 i = 0; i < len; i++)                                          \
@@ -266,7 +266,7 @@
     }
 
 #define __real_vec_length(len)                                  \
-    MR_FORCE_STATIC_INLINE real v##len##_length(const v##len a) \
+    MR_INLINE real v##len##_length(const v##len a) \
     {                                                           \
         real res = REAL(0);                                     \
         for (u8 i = 0; i < len; i++)                            \
@@ -277,7 +277,7 @@
     }
 
 #define __real_vec_normalize(len)                              \
-    MR_FORCE_STATIC_INLINE void v##len##_normalize(v##len vec) \
+    MR_INLINE void v##len##_normalize(v##len vec) \
     {                                                          \
         v##len##_divs(vec, vec, v##len##_length(vec));         \
     }
@@ -370,7 +370,7 @@ __real_vec_impl(4);
 // Specific functions
 // ----------------------------------------------------------------------
 
-MR_FORCE_STATIC_INLINE void v3_cross(v3 res, const v3 a, const v3 b)
+MR_INLINE void v3_cross(v3 res, const v3 a, const v3 b)
 {
     res[0] = real_sub(real_mul(a[1], b[2]), real_mul(a[2], b[1]));
     res[1] = real_sub(real_mul(a[2], b[0]), real_mul(a[0], b[2]));

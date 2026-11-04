@@ -5,7 +5,7 @@ LDFLAGS := $(shell sdl2-config --libs) -lm
 # EXTRA_FLAGS += -DMR_SDL2_MINI
 # EXTRA_FLAGS += -DMR_SDL2_MID
 # EXTRA_FLAGS += -DMR_SDL2_LARGE
-# EXTRA_FLAGS += -DMR_SDL2_HIRES
+EXTRA_FLAGS += -DMR_SDL2_HIRES
 
 CFLAGS += $(EXTRA_FLAGS)
 
@@ -47,7 +47,9 @@ RELEASE_DEPS          := $(RELEASE_LIB_OBJS:.o=.d) $(RELEASE_PLATFORM_OBJS:.o=.d
 # the 'debug' and 'release' goals or after a failed goal).
 .SECONDARY:
 
-.PHONY: all debug release clean
+FMT_SRCS := $(LIB_SRCS) $(PLATFORM_SRCS) $(DEMO_SRCS) $(COMMON_SRCS) $(wildcard include/*.h)
+
+.PHONY: all debug release clean format
 
 all: debug
 
@@ -88,6 +90,9 @@ $(BUILD_DEBUG)/%.o: %.c
 $(BUILD_RELEASE)/%.o: %.c
 	mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(RELEASE_FLAGS) $(INC) -MMD -MP -c $< -o $@
+
+format:
+	clang-format -i $(FMT_SRCS)
 
 clean:
 	rm -rf build

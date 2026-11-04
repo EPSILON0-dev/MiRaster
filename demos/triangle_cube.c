@@ -2,6 +2,7 @@
 #include "mr/math.h"
 #include "mr/model.h"
 #include "mr/render.h"
+#include "mr/shader.h"
 #include "mr/types.h"
 
 #define DEGREES_PER_FRAME REAL(100.0f / 30.0f)
@@ -32,20 +33,10 @@ u16 cubeinds[] =
 
 void triangle_shader(v4 color, const struct mr_triangle_shader_inputs* inputs)
 {
-    v3 barycoord;
-    mr_triangle_shader_normalize_barycoord(barycoord, inputs);
-
-    v4 vertex_color[3];
-    for (u8 i = 0; i < 3; i++)
-    {
-        v3_cpy(vertex_color[i], ((v3*)inputs->cmd->data)[inputs->cmd->inds[i]]);
-        vertex_color[i][3] = REAL(1);
-    }
-
-    mr_triangle_shader_interpolate_v4(color, vertex_color, barycoord);
-
-    v3_muls(color, color, REAL(0.45f));
-    v3_adds(color, color, REAL(0.60f));
+    v3 pos;
+    mr_shader_point_data(pos, inputs, 3);
+    v3_maddss(color, pos, REAL(0.45f), REAL(0.60f));
+    color[3] = REAL(1);
 }
 
 static struct mr_model s_model = {
